@@ -1,0 +1,2 @@
+google-api-python-client==1.7.11
+google-cloud-language==1.3.0

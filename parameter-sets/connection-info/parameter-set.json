@@ -1,0 +1,34 @@
+{
+    "meta": {
+        "label": "GCP connection",
+        "pluralLabel": "GCP connections",
+        "icon": "icon-link"
+    },
+    "defaultDefinableAtProjectLevel": true,
+    "defaultDefinableInline": true,
+    "pluginParams": [
+    ],
+    "params": [
+        {
+            "name": "credentials",
+            "label": "Private key",
+            "description": "Must contain either the full path on the DSS server to a service account key file (.json or .p12), or the key as JSON. If empty, uses what was set by gcloud auth application-default login",
+            "type": "STRING",
+            "mandatory": false
+        },
+        {
+            "name": "projectId",
+            "label": "Project key",
+            "type": "STRING",
+            "description": "If empty, uses what was set by gcloud auth application-default login",
+            "mandatory": false
+        },
+        {
+            "name": "zone",
+            "label": "GCP Zone",
+            "type": "STRING",
+            "description": "If empty, uses what was set by gcloud auth application-default login",
+            "mandatory": false
+        }
+    ]
+}

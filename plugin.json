@@ -1,0 +1,13 @@
+{
+    "id": "google-cloud-natural-language",
+    "version": "1.0.0",
+    "meta": {
+        "label": "Google Cloud Natural Language",
+        "description": "Use Google Cloud APIs to perform sentiment analysis, entities extraction, classification, etc.",
+        "author": "Dataiku",
+        "icon": "icon-cloud",
+        "licenseInfo": "Apache Software License",
+        "url": "https://www.dataiku.com",
+        "tags": ["Google", "Cloud", "NLP"]
+    }
+}
