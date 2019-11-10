@@ -40,6 +40,11 @@
             "label": "Input text column",
             "type": "COLUMN",
             "mandatory": true
+        },
+        {
+            "name": "should_output_raw_results",
+            "label": "Output Raw Response?",
+            "type": "BOOLEAN"
         }
     ],
     "resourceKeys": []

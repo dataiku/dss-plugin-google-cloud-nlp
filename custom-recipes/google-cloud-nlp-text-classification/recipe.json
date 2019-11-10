@@ -41,6 +41,11 @@
             "description": "WARNING: each record MUST have at least 20 tokens.",
             "type": "COLUMN",
             "mandatory": true
+        },
+        {
+            "name": "should_output_raw_results",
+            "label": "Output Raw Response?",
+            "type": "BOOLEAN"
         }
     ],
     "resourceKeys": []

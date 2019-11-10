@@ -67,6 +67,12 @@
             "defaultValue": "ternary"
         },
         {
+            "name": "output_probabilities",
+            "type": "BOOLEAN",
+            "label": "Output probabilities",
+            "defaultValue": true
+        },
+        {
             "name": "output_detected_language",
             "label": "Output detected language",
             "type": "BOOLEAN",
@@ -78,6 +84,11 @@
             "description": "Sentiment magnitude is not normalized (ie will tend to be higher with document size)",
             "type": "BOOLEAN",
             "defaultValue": false
+        },
+        {
+            "name": "should_output_raw_results",
+            "label": "Output Raw Response?",
+            "type": "BOOLEAN"
         }
     ],
     "resourceKeys": []
