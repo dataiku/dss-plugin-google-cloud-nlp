@@ -36,11 +36,31 @@
             "mandatory" : true
         },
         {
-            "name": "input_text_col",
+            "name": "text_column",
             "label": "Input text column",
             "description": "WARNING: each record MUST have at least 20 tokens.",
             "type": "COLUMN",
+            "columnRole": "input_dataset",
             "mandatory": true
+        },
+        {
+            "name": "language",
+            "label": "Language",
+            "type": "COLUMN",
+            "columnRole": "input_dataset",
+            "description": "in ISO 639-1 format (empty = auto-detect)",
+            "mandatory": false
+        },
+        {
+            "name": "remove_prefix",
+            "label": "Remove prefix",
+            "type": "BOOLEAN",
+            "defaultValue": true
+        },
+        {
+            "name": "output_multiple_categories",
+            "label": "Output several categories",
+            "type": "BOOLEAN"
         },
         {
             "name": "should_output_raw_results",

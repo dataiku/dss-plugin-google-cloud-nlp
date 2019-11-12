@@ -1,8 +1,8 @@
 {
     "meta": {
-        "label": "Named Entities Recognition",
-        "description": "Identify “real-world objects” (i.e. People names, Dates, Places, etc) in texts using Google Entity Analysis API",
-        "icon": "icon-tags",
+        "label": "Language Detection",
+        "description": "Detect the dominant language in texts",
+        "icon": "icon-comment-alt",
         "iconColor": "green"
     },
     "kind": "PYTHON",
@@ -41,30 +41,6 @@
             "type": "COLUMN",
             "columnRole": "input_dataset",
             "mandatory": true
-        },
-        {
-            "name": "language",
-            "label": "Language",
-            "type": "COLUMN",
-            "columnRole": "input_dataset",
-            "description": "in ISO 639-1 format (empty = auto-detect)",
-            "mandatory": false
-        },
-        {
-            "name": "output_format",
-            "label": "Output Format",
-            "type": "SELECT",
-            "selectChoices": [
-                {"value": "single_column", "label": "A single JSON column"},
-                {"value": "multiple_columns", "label": "One colum per entity type"}
-            ],
-            "defaultValue": "single_column",
-            "mandatory": true
-        },
-        {
-            "name": "should_output_raw_results",
-            "label": "Output Raw Response?",
-            "type": "BOOLEAN"
         }
     ],
     "resourceKeys": []

@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Sentiment analysis",
+        "label": "Sentiment Analysis",
         "description": "Estimate the sentiment polarity of a text (positive, negative, neutral)",
         "icon": "icon-star-half-full",
         "iconColor": "green"
@@ -36,9 +36,10 @@
             "mandatory" : true
         },
         {
-            "name": "input_text_col",
+            "name": "text_column",
             "label": "Input text column",
             "type": "COLUMN",
+            "columnRole": "input_dataset",
             "mandatory": true
         },
         {
@@ -60,30 +61,23 @@
                     "label": "highly negative / negative / neutral / positive / highly positive"
                 },
                 {
-                    "value": "continuous",
+                    "value": "0to1",
                     "label": "Number between 0 (highly negative) and 1 (highly positive)"
+                },
+                {
+                    "value": "minus1to1",
+                    "label": "Number between -1 (highly negative) and 1 (highly positive)"
                 }
             ],
             "defaultValue": "ternary"
         },
         {
-            "name": "output_probabilities",
-            "type": "BOOLEAN",
-            "label": "Output probabilities",
-            "defaultValue": true
-        },
-        {
-            "name": "output_detected_language",
-            "label": "Output detected language",
-            "type": "BOOLEAN",
-            "defaultValue": false
-        },
-        {
-            "name": "output_magnitude",
-            "label": "Output magnitude",
-            "description": "Sentiment magnitude is not normalized (ie will tend to be higher with document size)",
-            "type": "BOOLEAN",
-            "defaultValue": false
+            "name": "language",
+            "label": "Language",
+            "type": "COLUMN",
+            "columnRole": "input_dataset",
+            "description": "in ISO 639-1 format (empty = auto-detect)",
+            "mandatory": false
         },
         {
             "name": "should_output_raw_results",
