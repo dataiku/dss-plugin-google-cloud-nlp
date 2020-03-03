@@ -4,8 +4,8 @@
         "pluralLabel": "GCP credentials",
         "icon": "icon-link"
     },
-    "defaultDefinableAtProjectLevel": true,
-    "defaultDefinableInline": true,
+    "defaultDefinableAtProjectLevel": false,
+    "defaultDefinableInline": false,
     "pluginParams": [],
     "params": [
         {
