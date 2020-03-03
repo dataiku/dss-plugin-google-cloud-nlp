@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Named Entities Recognition",
+        "label": "Named Entity Recognition",
         "description": "Identify “real-world objects” (i.e. People names, Dates, Places, etc) in texts using Google Entity Analysis API",
         "icon": "icon-tags",
         "iconColor": "green"
@@ -32,8 +32,8 @@
             "name": "connection_info",
             "label": "GCP Connection",
             "type": "PRESET",
-            "parameterSetId" : "connection-info",
-            "mandatory" : true
+            "parameterSetId": "connection-info",
+            "mandatory": true
         },
         {
             "name": "text_column",
@@ -55,8 +55,14 @@
             "label": "Output Format",
             "type": "SELECT",
             "selectChoices": [
-                {"value": "single_column", "label": "A single JSON column"},
-                {"value": "multiple_columns", "label": "One colum per entity type"}
+                {
+                    "value": "single_column",
+                    "label": "A single JSON column"
+                },
+                {
+                    "value": "multiple_columns",
+                    "label": "One colum per entity type"
+                }
             ],
             "defaultValue": "single_column",
             "mandatory": true
