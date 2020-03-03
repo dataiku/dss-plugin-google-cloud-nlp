@@ -2,8 +2,7 @@
     "meta": {
         "label": "Language Detection",
         "description": "Detect the dominant language of a text",
-        "icon": "icon-comment-alt",
-        "iconColor": "green"
+        "icon": "icon-comment-alt"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
