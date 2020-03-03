@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "meta": {
         "label": "Google Cloud NLP",
-        "description": "Use Google Cloud APIs to perform sentiment analysis, entities extraction, classification, etc.",
+        "description": "Use Google Cloud NLP APIs to perform sentiment analysis, entities extraction, classification, etc.",
         "author": "Dataiku (Joachim ZENTICI and Alex COMBESSIE)",
         "icon": "icon-cloud",
         "licenseInfo": "Apache Software License",
