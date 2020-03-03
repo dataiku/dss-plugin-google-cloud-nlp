@@ -2,8 +2,7 @@
     "meta": {
         "label": "Sentiment Analysis",
         "description": "Analyze the sentiment polarity (positive, negative, neutral) of a text",
-        "icon": "icon-star-half-full",
-        "iconColor": "green"
+        "icon": "icon-star-half-full"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
