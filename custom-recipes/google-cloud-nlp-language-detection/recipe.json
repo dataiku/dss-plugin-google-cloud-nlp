@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Language Detection",
-        "description": "Detect the dominant language of a text",
+        "description": "Detect the dominant language",
         "icon": "icon-comment-alt",
         "iconColor": "green"
     },
