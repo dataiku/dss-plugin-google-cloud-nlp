@@ -1,13 +1,12 @@
 {
     "meta": {
-        "label": "GCP connection",
-        "pluralLabel": "GCP connections",
+        "label": "GCP credential",
+        "pluralLabel": "GCP credentials",
         "icon": "icon-link"
     },
     "defaultDefinableAtProjectLevel": true,
     "defaultDefinableInline": true,
-    "pluginParams": [
-    ],
+    "pluginParams": [],
     "params": [
         {
             "name": "credentials",
