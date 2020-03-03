@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Named Entity Recognition",
-        "description": "Identify “real-world objects” (people names, dates, places, etc.) in a text",
+        "description": "Recognize “real-world objects” (people names, dates, places, etc.) in a text",
         "icon": "icon-tags",
         "iconColor": "green"
     },
