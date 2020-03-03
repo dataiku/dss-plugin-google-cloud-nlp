@@ -2,8 +2,7 @@
     "meta": {
         "label": "Named Entity Recognition",
         "description": "Recognize “real-world objects” (people names, dates, places, etc.) in a text",
-        "icon": "icon-tags",
-        "iconColor": "green"
+        "icon": "icon-tags"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
