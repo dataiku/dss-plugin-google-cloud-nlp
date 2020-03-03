@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Named Entity Recognition",
-        "description": "Identify “real-world objects” (i.e. People names, Dates, Places, etc) in texts using Google Entity Analysis API",
+        "description": "Identify “real-world objects” (i.e. People names, Dates, Places, etc) in a text",
         "icon": "icon-tags",
         "iconColor": "green"
     },
