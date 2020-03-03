@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Text classification",
+        "label": "Text Classification",
         "description": "Classify text into categories (example: ”/Arts & Entertainment/Music & Audio/Music Reference”).",
         "icon": "icon-sitemap",
         "iconColor": "green"
@@ -32,8 +32,8 @@
             "name": "connection_info",
             "label": "GCP Connection",
             "type": "PRESET",
-            "parameterSetId" : "connection-info",
-            "mandatory" : true
+            "parameterSetId": "connection-info",
+            "mandatory": true
         },
         {
             "name": "text_column",
