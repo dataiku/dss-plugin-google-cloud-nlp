@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Sentiment Analysis",
-        "description": "Analyze the sentiment polarity (positive, negative, neutral) of a text",
+        "description": "Analyze the sentiment polarity (positive, negative, neutral)",
         "icon": "icon-star-half-full",
         "iconColor": "green"
     },
