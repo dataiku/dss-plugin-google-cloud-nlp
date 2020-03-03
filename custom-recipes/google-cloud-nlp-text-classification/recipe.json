@@ -2,8 +2,7 @@
     "meta": {
         "label": "Text Classification",
         "description": "Classify text into predefined categories (example: “/Arts & Entertainment/Music & Audio/Music Reference”)",
-        "icon": "icon-sitemap",
-        "iconColor": "green"
+        "icon": "icon-sitemap"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
