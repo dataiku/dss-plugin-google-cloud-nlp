@@ -66,7 +66,7 @@ def format_sentiment(score, scale):
 
 def _get_credentials(connection_info):
     if not connection_info.get("credentials"):
-        return None
+        return(None)
     try:
         credentials = json.loads(connection_info.get("credentials"))
     except Exception as e:
