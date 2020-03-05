@@ -17,7 +17,7 @@ def format_entities_results(raw_results, scale=None):
     output_row["raw_results"] = result
     for t in ALL_ENTITY_TYPES:
         output_row[t] = _distinct([e["name"] for e in output_row["entities"] if e["type"] == t])
-    return output_row
+    return(output_row)
 
 def format_classification_results(raw_results, remove_prefix):
     result = json.loads(MessageToJson(raw_results))
