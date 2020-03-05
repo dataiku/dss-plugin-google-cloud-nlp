@@ -10,6 +10,9 @@ def get_client(connection_info):
     credentials = _get_credentials(connection_info)
     return(language.LanguageServiceClient(credentials = credentials))
 
+def _distinct(l):
+    return list(dict.fromkeys(l))
+
 def format_entities_results(raw_results, scale=None):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
@@ -78,6 +81,3 @@ def _get_credentials(connection_info):
     else:
         logging.info("Credentials loaded")
     return(credentials)
-
-def _distinct(l):
-    return list(dict.fromkeys(l))
