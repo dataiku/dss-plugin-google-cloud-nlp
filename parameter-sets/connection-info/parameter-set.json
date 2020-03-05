@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "GCP Service Account",
-        "label": "GCP Service Accounts",
+        "pluralLabel": "GCP Service Accounts",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "defaultDefinableAtProjectLevel": true,
@@ -9,7 +9,7 @@
     "pluginParams": [],
     "params": [
         {
-            "name": "Service Account",
+            "name": "credentials",
             "label": "Private key",
             "description": "Must contain either the full path on the DSS server to a service account key file (.json or .p12), or the key as JSON. If empty, uses what was set by gcloud auth application-default login",
             "type": "PASSWORD",
