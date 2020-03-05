@@ -26,7 +26,7 @@ def format_classification_results(raw_results, remove_prefix):
     if remove_prefix:
         output_row['categories'] = [c.split('/')[-1] for c in output_row['categories']]
     output_row["raw_results"] = result
-    return output_row
+    return(output_row)
 
 def format_sentiment_results(raw_results, scale=None):
     result = json.loads(MessageToJson(raw_results))
@@ -41,7 +41,7 @@ def format_sentiment_results(raw_results, scale=None):
         output_row['predicted_sentiment'] = None
         output_row['detected_language'] = None
         output_row["raw_results"] = None
-    return output_row
+    return(output_row)
 
 def format_sentiment(score, scale):
     if scale == 'binary':
