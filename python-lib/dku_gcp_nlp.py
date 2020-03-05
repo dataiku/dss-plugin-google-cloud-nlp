@@ -8,7 +8,7 @@ ALL_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'W
 
 def get_client(connection_info):
     credentials = _get_credentials(connection_info)
-    return language.LanguageServiceClient(credentials=credentials)
+    return(language.LanguageServiceClient(credentials = credentials))
 
 def format_entities_results(raw_results, scale=None):
     result = json.loads(MessageToJson(raw_results))
