@@ -77,7 +77,7 @@ def _get_credentials(connection_info):
         logging.info("Credentials loaded : %s" % credentials.service_account_email)
     else:
         logging.info("Credentials loaded")
-    retur credentials
+    return(credentials)
 
 def _distinct(l):
     return list(dict.fromkeys(l))
