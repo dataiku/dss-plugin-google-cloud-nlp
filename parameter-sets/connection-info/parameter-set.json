@@ -10,7 +10,7 @@
     "params": [
         {
             "name": "GCP Service Account Key",
-            "label": "Private key",
+            "label": "Service Account Key",
             "description": "Either the full path on the DSS server to a service account key file (.json or .p12) or the key itself as JSON. If empty, uses what was set by gcloud auth application-default login",
             "type": "PASSWORD",
             "mandatory": false
