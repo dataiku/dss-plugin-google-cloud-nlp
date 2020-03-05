@@ -1,7 +1,7 @@
 {
     "meta": {
-        "label": "GCP Service Account Key",
-        "label": "GCP Service Account Keys",
+        "label": "GCP Service Account",
+        "label": "GCP Service Accounts",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "defaultDefinableAtProjectLevel": true,
