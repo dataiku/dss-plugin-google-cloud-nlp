@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "GCP credential",
+        "label": "GCP Service Account Key",
         "pluralLabel": "GCP credentials",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
