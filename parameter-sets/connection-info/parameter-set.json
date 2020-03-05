@@ -9,7 +9,7 @@
     "pluginParams": [],
     "params": [
         {
-            "name": "credentials",
+            "name": "GCP Service Account Key",
             "label": "Private key",
             "description": "Either the full path on the DSS server to a service account key file (.json or .p12) or the key itself as JSON. If empty, uses what was set by gcloud auth application-default login",
             "type": "PASSWORD",
