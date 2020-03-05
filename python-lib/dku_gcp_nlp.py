@@ -60,7 +60,7 @@ def format_sentiment(score, scale):
         else:
             return 'highly positive'
     elif scale == '0to1':
-        return round((score+1)/2, 2)
+        return(round((score+1)/2, 2))
     else:
         return(round(score, 2))
 
