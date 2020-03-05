@@ -16,7 +16,7 @@
        to select already defined presets (default value, can be changed in plugin
        settings)
     */
-    "defaultDefinableInline": true,
+    "defaultDefinableInline": false,
 
     /* if users are allowed to define presets at the project level in addition
        to the instance level (default value, can be changed in plugin settings) */
