@@ -108,6 +108,23 @@
             "defaultValue": true
         },
         {
+            "name": "output_multiple_categories",
+            "label": "Category handling",
+            "type": "SELECT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "multiple",
+                    "label": "Multiple categories"
+                },
+                {
+                    "value": "single",
+                    "label": "Single category"
+                }
+            ],
+            "defaultValue": "multiple"
+        },
+        {
             "name": "should_output_raw_results",
             "label": "Add raw response",
             "type": "BOOLEAN",
