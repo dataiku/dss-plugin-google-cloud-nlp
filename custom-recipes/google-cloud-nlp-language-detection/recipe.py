@@ -10,7 +10,7 @@ from common import *
 # SETUP
 #==============================================================================
 
-logging.basicConfig(level=logging.INFO, format='[Google Cloud plugin] %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='[Google Cloud NLP plugin] %(levelname)s - %(message)s')
 
 connection_info = get_recipe_config().get("connection_info")
 text_column = get_recipe_config().get("text_column")
