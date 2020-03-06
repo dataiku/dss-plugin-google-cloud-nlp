@@ -36,7 +36,7 @@
         },
         {
             "name": "connection_info",
-            "label": "Cloud Credential",
+            "label": "Cloud Credentials",
             "type": "PRESET",
             "parameterSetId": "connection-info",
             "mandatory": true
