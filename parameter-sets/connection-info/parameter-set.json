@@ -8,7 +8,7 @@
     "defaultDefinableInline": false,
     "pluginParams": [
         {
-            "name": "GCP Service Account Key",
+            "name": "test",
             "label": "Service Account Key",
             "description": "Either the full path on the DSS server to a service account key file (.json or .p12) or the key as JSON. If empty, uses what was set by gcloud auth application-default login.",
             "type": "PASSWORD",
