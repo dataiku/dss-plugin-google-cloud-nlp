@@ -46,7 +46,7 @@
         },
         {
             "name": "connection_info",
-            "label": "Service account",
+            "label": "Service account preset",
             "type": "PRESET",
             "parameterSetId": "connection-info",
             "mandatory": true
