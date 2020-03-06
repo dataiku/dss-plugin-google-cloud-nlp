@@ -22,12 +22,12 @@ def format_entities_results(raw_results, scale=None):
         output_row[t] = _distinct([e["name"] for e in output_row["entities"] if e["type"] == t])
     return(output_row)
 
-def format_classification_results(raw_results, remove_prefix):
+def format_classification_results(raw_results):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
     output_row['categories'] = [c['name'] for c in result.get('categories', [])]
-    if remove_prefix:
-        output_row['categories'] = [c.split('/')[-1] for c in output_row['categories']]
+    #if remove_prefix:
+    #    output_row['categories'] = [c.split('/')[-1] for c in output_row['categories']]
     output_row["raw_results"] = result
     return(output_row)
 
