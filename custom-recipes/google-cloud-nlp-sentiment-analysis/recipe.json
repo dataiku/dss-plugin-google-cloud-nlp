@@ -27,12 +27,10 @@
         }
     ],
     "params": [
-        {
-            "name": "connection_info",
-            "label": "GCP Connection",
-            "type": "PRESET",
-            "parameterSetId": "connection-info",
-            "mandatory": true
+                {
+             "name": "separator1",
+             "label": "Input Parameters",
+             "type": "SEPARATOR"
         },
         {
             "name": "text_column",
@@ -40,6 +38,68 @@
             "type": "COLUMN",
             "columnRole": "input_dataset",
             "mandatory": true
+        },
+        {
+            "name": "language",
+            "label": "Language",
+            "type": "SELECT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "auto",
+                    "label": "Auto-detect"
+                },
+                {
+                    "value": "zh",
+                    "label": "Chinese (Simplified)"
+                },
+                {
+                    "value": "zh-Hant",
+                    "label": "Chinese (Traditional)"
+                },
+                {
+                    "value": "en",
+                    "label": "English"
+                },
+                {
+                    "value": "fr",
+                    "label": "French"
+                },
+                {
+                    "value": "de",
+                    "label": "German"
+                },
+                {
+                    "value": "it",
+                    "label": "Italian"
+                },
+                {
+                    "value": "ja",
+                    "label": "Japanese"
+                },
+                {
+                    "value": "ko",
+                    "label": "Korean"
+                },
+                {
+                    "value": "pt",
+                    "label": "Portuguese"
+                },
+                {
+                    "value": "ru",
+                    "label": "Russian"
+                },
+                {
+                    "value": "es",
+                    "label": "Spanish"
+                }  
+            ],
+            "defaultValue": "auto"
+        },
+         {
+             "name": "separator2",
+             "label": "Output Parameters",
+             "type": "SEPARATOR"
         },
         {
             "name": "sentiment_scale",
@@ -71,17 +131,22 @@
             "defaultValue": "ternary"
         },
         {
-            "name": "language",
-            "label": "Language",
-            "type": "COLUMN",
-            "columnRole": "input_dataset",
-            "description": "in ISO 639-1 format (empty = auto-detect)",
-            "mandatory": false
+            "name": "should_output_raw_results",
+            "label": "Add raw response",
+            "type": "BOOLEAN",
+            "defaultValue": false
         },
         {
-            "name": "should_output_raw_results",
-            "label": "Output Raw Response?",
-            "type": "BOOLEAN"
+             "name": "separator3",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
+            "name": "connection_info",
+            "label": "Cloud credential preset",
+            "type": "PRESET",
+            "parameterSetId": "connection-info",
+            "mandatory": true
         }
     ],
     "resourceKeys": []
