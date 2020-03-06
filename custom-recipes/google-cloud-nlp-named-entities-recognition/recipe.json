@@ -115,7 +115,7 @@
                     "label": "One column per entity type"
                 }
             ],
-            "defaultValue": "single_column",
+            "defaultValue": "multiple_columns",
             "mandatory": true
         },
         {
