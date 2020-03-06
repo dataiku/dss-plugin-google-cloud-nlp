@@ -28,16 +28,13 @@
     ],
     "params": [
         {
-            "name": "connection_info",
-            "label": "GCP Connection",
-            "type": "PRESET",
-            "parameterSetId": "connection-info",
-            "mandatory": true
+             "name": "separator1",
+             "label": "Input Parameters",
+             "type": "SEPARATOR"
         },
         {
             "name": "text_column",
             "label": "Input text column",
-            "description": "WARNING: each record MUST have at least 20 tokens.",
             "type": "COLUMN",
             "columnRole": "input_dataset",
             "mandatory": true
@@ -45,16 +42,64 @@
         {
             "name": "language",
             "label": "Language",
-            "type": "COLUMN",
-            "columnRole": "input_dataset",
-            "description": "in ISO 639-1 format (empty = auto-detect)",
-            "mandatory": false
+            "type": "SELECT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "auto",
+                    "label": "Auto-detect"
+                },
+                {
+                    "value": "zh",
+                    "label": "Chinese (Simplified)"
+                },
+                {
+                    "value": "zh-Hant",
+                    "label": "Chinese (Traditional)"
+                },
+                {
+                    "value": "en",
+                    "label": "English"
+                },
+                {
+                    "value": "fr",
+                    "label": "French"
+                },
+                {
+                    "value": "de",
+                    "label": "German"
+                },
+                {
+                    "value": "it",
+                    "label": "Italian"
+                },
+                {
+                    "value": "ja",
+                    "label": "Japanese"
+                },
+                {
+                    "value": "ko",
+                    "label": "Korean"
+                },
+                {
+                    "value": "pt",
+                    "label": "Portuguese"
+                },
+                {
+                    "value": "ru",
+                    "label": "Russian"
+                },
+                {
+                    "value": "es",
+                    "label": "Spanish"
+                }  
+            ],
+            "defaultValue": "auto"
         },
-        {
-            "name": "remove_prefix",
-            "label": "Remove prefix",
-            "type": "BOOLEAN",
-            "defaultValue": true
+         {
+             "name": "separator2",
+             "label": "Output Parameters",
+             "type": "SEPARATOR"
         },
         {
             "name": "output_multiple_categories",
@@ -62,9 +107,51 @@
             "type": "BOOLEAN"
         },
         {
+            "name": "sentiment_scale",
+            "label": "Sentiment scale",
+            "type": "SELECT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "binary",
+                    "label": "negative / positive"
+                },
+                {
+                    "value": "ternary",
+                    "label": "negative / neutral / positive"
+                },
+                {
+                    "value": "1to5",
+                    "label": "highly negative / negative / neutral / positive / highly positive"
+                },
+                {
+                    "value": "0to1",
+                    "label": "Number between 0 (highly negative) and 1 (highly positive)"
+                },
+                {
+                    "value": "minus1to1",
+                    "label": "Number between -1 (highly negative) and 1 (highly positive)"
+                }
+            ],
+            "defaultValue": "ternary"
+        },
+        {
             "name": "should_output_raw_results",
-            "label": "Output Raw Response?",
-            "type": "BOOLEAN"
+            "label": "Add raw response",
+            "type": "BOOLEAN",
+            "defaultValue": false
+        },
+        {
+             "name": "separator3",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
+            "name": "connection_info",
+            "label": "Cloud credential preset",
+            "type": "PRESET",
+            "parameterSetId": "connection-info",
+            "mandatory": true
         }
     ],
     "resourceKeys": []
