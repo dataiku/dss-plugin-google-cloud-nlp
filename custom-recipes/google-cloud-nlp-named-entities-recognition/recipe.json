@@ -28,17 +28,27 @@
     ],
     "params": [
         {
-            "name": "connection_info",
-            "label": "GCP Connection",
-            "type": "PRESET",
-            "parameterSetId": "connection-info",
-            "mandatory": true
+             "name": "separator1",
+             "label": "Parameters",
+             "type": "SEPARATOR"
         },
         {
             "name": "text_column",
             "label": "Input text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
+            "mandatory": true
+        },
+        {
+             "name": "separator2",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
+            "name": "connection_info",
+            "label": "Cloud credential preset",
+            "type": "PRESET",
+            "parameterSetId": "connection-info",
             "mandatory": true
         },
         {
