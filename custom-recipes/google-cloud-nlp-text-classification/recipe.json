@@ -104,36 +104,8 @@
         {
             "name": "output_multiple_categories",
             "label": "Output several categories",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "sentiment_scale",
-            "label": "Sentiment scale",
-            "type": "SELECT",
-            "mandatory": true,
-            "selectChoices": [
-                {
-                    "value": "binary",
-                    "label": "negative / positive"
-                },
-                {
-                    "value": "ternary",
-                    "label": "negative / neutral / positive"
-                },
-                {
-                    "value": "1to5",
-                    "label": "highly negative / negative / neutral / positive / highly positive"
-                },
-                {
-                    "value": "0to1",
-                    "label": "Number between 0 (highly negative) and 1 (highly positive)"
-                },
-                {
-                    "value": "minus1to1",
-                    "label": "Number between -1 (highly negative) and 1 (highly positive)"
-                }
-            ],
-            "defaultValue": "ternary"
+            "type": "BOOLEAN",
+            "defaultValue": true
         },
         {
             "name": "should_output_raw_results",
