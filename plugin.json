@@ -5,7 +5,7 @@
         "label": "Google Cloud NLP",
         "description": "Use the Google Cloud Natural Language API to perform Language Detection, Sentiment Analysis, Named Entity Recognition and Text Classification",
         "author": "Dataiku (Joachim ZENTICI and Alex COMBESSIE)",
-        "icon": "icon-cloud",
+        "icon": "icon-gcp-natural-language-api icon-cloud",
         "licenseInfo": "Apache Software License",
         "url": "https://www.dataiku.com/dss/plugins/info/google-cloud-nlp.html",
         "tags": [
