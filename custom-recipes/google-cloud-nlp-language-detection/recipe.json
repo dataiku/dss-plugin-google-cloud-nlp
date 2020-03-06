@@ -41,12 +41,12 @@
         },
         {
              "name": "separator2",
-             "label": "Cloud Credentials",
+             "label": "Configuration",
              "type": "SEPARATOR"
         },
         {
             "name": "connection_info",
-            "label": "Service account preset",
+            "label": "Cloud credential preset",
             "type": "PRESET",
             "parameterSetId": "connection-info",
             "mandatory": true
