@@ -92,8 +92,7 @@
                 {
                     "value": "es",
                     "label": "Spanish"
-                },
-                
+                }  
             ],
             "defaultValue": "auto"
         },
