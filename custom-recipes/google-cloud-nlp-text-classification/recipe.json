@@ -103,7 +103,7 @@
         },
         {
             "name": "output_multiple_categories",
-            "label": "Output several categories",
+            "label": "Output multiple categories",
             "type": "BOOLEAN",
             "defaultValue": true
         },
