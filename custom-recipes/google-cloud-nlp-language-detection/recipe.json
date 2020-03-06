@@ -28,6 +28,11 @@
     ],
     "params": [
         {
+             "name": "separator1",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
             "name": "text_column",
             "label": "Input text column",
             "type": "COLUMN",
@@ -35,13 +40,13 @@
             "mandatory": true
         },
         {
-             "name": "separator",
-             "label": "Configuration",
+             "name": "separator2",
+             "label": "Cloud Credentials",
              "type": "SEPARATOR"
         },
         {
             "name": "connection_info",
-            "label": "Cloud Credentials",
+            "label": "Preset",
             "type": "PRESET",
             "parameterSetId": "connection-info",
             "mandatory": true
