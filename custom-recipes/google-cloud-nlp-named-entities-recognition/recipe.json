@@ -112,7 +112,7 @@
                 },
                 {
                     "value": "multiple_columns",
-                    "label": "One colum per entity type"
+                    "label": "One column per entity type"
                 }
             ],
             "defaultValue": "single_column",
