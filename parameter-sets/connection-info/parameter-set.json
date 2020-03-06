@@ -5,7 +5,7 @@
     },
     "defaultDefinableAtProjectLevel": true,
     "defaultDefinableInline": false,
-    "pluginParams": [
+    "params": [
         {
             "name": "test",
             "label": "Service Account Key",
