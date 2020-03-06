@@ -33,6 +33,7 @@ def _iter_non_empty_rows_batches(input_df, text_column, batch_size):
         yield text_list, original_indices
 
 def generate_unique(name, existing_names):
+    # TODO WHY THIS FUNCTION?
     new_name = name
     for j in range(1, 1000):
         if new_name not in existing_names:
