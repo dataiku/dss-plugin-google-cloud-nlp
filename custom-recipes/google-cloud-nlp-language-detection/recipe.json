@@ -28,17 +28,17 @@
     ],
     "params": [
         {
-            "name": "connection_info",
-            "label": "Cloud Credential",
-            "type": "PRESET",
-            "parameterSetId": "connection-info",
-            "mandatory": true
-        },
-        {
             "name": "text_column",
             "label": "Input text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
+            "mandatory": true
+        },
+        {
+            "name": "connection_info",
+            "label": "Cloud Credential",
+            "type": "PRESET",
+            "parameterSetId": "connection-info",
             "mandatory": true
         }
     ],
