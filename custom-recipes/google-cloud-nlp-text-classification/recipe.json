@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Text Classification",
+        "label": "Classification",
         "description": "Classify text into predefined categories (example: “/Arts & Entertainment/Music & Audio/Music Reference”)",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
