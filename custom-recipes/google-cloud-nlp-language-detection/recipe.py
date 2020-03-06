@@ -37,7 +37,7 @@ def detect_sentiment(text_list):
     client = get_client(connection_info)
     logging.info("request: %d characters" % (sum([len(t) for t in text_list])))
     start = time.time()
-    document = nlp.types.Document(content=text_list[0], type=nlp.enums.Document.Type.PLAIN_TEXT)
+    document = nlp.types.Document(content = text_list[0], type = nlp.enums.Document.Type.PLAIN_TEXT)
     response = client.analyze_sentiment(document=document, encoding_type='UTF32')
     logging.info("request took %.3fs" % (time.time() - start))
     return response
