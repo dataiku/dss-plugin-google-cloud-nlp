@@ -35,6 +35,11 @@
             "mandatory": true
         },
         {
+             "name": "separator",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
             "name": "connection_info",
             "label": "Cloud Credentials",
             "type": "PRESET",
