@@ -1,7 +1,6 @@
 {
     "meta": {
-        "label": "GCP Service Account",
-        "pluralLabel": "GCP Service Accounts",
+        "label": "Cloud credentials",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "defaultDefinableAtProjectLevel": true,
