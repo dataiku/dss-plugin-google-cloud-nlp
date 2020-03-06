@@ -103,12 +103,6 @@
         },
         {
             "name": "output_multiple_categories",
-            "label": "Output multiple categories",
-            "type": "BOOLEAN",
-            "defaultValue": true
-        },
-        {
-            "name": "output_multiple_categories",
             "label": "Category handling",
             "type": "SELECT",
             "mandatory": true,
