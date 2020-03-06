@@ -73,7 +73,7 @@
             "name": "should_output_raw_results",
             "label": "Add raw response",
             "type": "BOOLEAN"
-            "defaultValue": false,
+            "defaultValue": false
         },
         {
              "name": "separator3",
