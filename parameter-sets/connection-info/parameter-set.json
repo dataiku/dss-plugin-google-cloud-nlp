@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Cloud credentials",
+        "label": "Cloud Credentials",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "defaultDefinableAtProjectLevel": true,
