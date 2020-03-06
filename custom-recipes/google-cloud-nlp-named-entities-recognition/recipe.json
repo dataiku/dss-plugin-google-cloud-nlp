@@ -41,11 +41,9 @@
         },
         {
             "name": "language",
-            "label": "Language column",
-            "type": "COLUMN",
-            "columnRole": "input_dataset",
-            "description": "in ISO 639-1 format. Leave empty to auto-detect.",
-            "mandatory": false
+            "label": "Language",
+            "type": "SELECT",
+            "mandatory": true
         },
          {
              "name": "separator2",
