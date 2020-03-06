@@ -42,7 +42,7 @@ def classify(text_list):
     logging.info("request: %d characters" % (sum([len(t) for t in text_list])))
     start = time.time()
     document = nlp.types.Document(content = text_list[0], type = nlp.enums.Document.Type.PLAIN_TEXT, language = language)
-    response = client.classify_text(document=document) #, encoding_type='UTF32'
+    response = client.classify_text(document = document) #, encoding_type='UTF32'
     logging.info("request took %.3fs" % (time.time() - start))
     return response
 
