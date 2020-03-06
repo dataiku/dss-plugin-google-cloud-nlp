@@ -29,7 +29,7 @@
     "params": [
         {
             "name": "connection_info",
-            "label": "GCP Connection",
+            "label": "Cloud Credential",
             "type": "PRESET",
             "parameterSetId": "connection-info",
             "mandatory": true
