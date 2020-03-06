@@ -41,7 +41,7 @@
         },
         {
             "name": "language",
-            "label": "Language",
+            "label": "Language column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
             "description": "in ISO 639-1 format (empty = auto-detect)",
