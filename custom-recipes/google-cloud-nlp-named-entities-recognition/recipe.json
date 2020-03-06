@@ -40,18 +40,6 @@
             "mandatory": true
         },
         {
-             "name": "separator2",
-             "label": "Configuration",
-             "type": "SEPARATOR"
-        },
-        {
-            "name": "connection_info",
-            "label": "Cloud credential preset",
-            "type": "PRESET",
-            "parameterSetId": "connection-info",
-            "mandatory": true
-        },
-        {
             "name": "language",
             "label": "Language",
             "type": "COLUMN",
@@ -61,7 +49,7 @@
         },
         {
             "name": "output_format",
-            "label": "Output Format",
+            "label": "Output format",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -78,8 +66,20 @@
         },
         {
             "name": "should_output_raw_results",
-            "label": "Output Raw Response?",
+            "label": "Output raw response",
             "type": "BOOLEAN"
+        },
+        {
+             "name": "separator2",
+             "label": "Configuration",
+             "type": "SEPARATOR"
+        },
+        {
+            "name": "connection_info",
+            "label": "Cloud credential preset",
+            "type": "PRESET",
+            "parameterSetId": "connection-info",
+            "mandatory": true
         }
     ],
     "resourceKeys": []
