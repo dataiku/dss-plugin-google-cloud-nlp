@@ -2,7 +2,7 @@
     "meta": {
         "label": "Language Detection",
         "description": "Detect the dominant language of a text",
-        "icon": "icon-gcp-natural-language-api icon-cloud"
+        "icon": "icon-gcp-natural-language-api icon-dku-lab icon-cloud"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
@@ -28,9 +28,9 @@
     ],
     "params": [
         {
-             "name": "separator1",
-             "label": "Input Parameters",
-             "type": "SEPARATOR"
+            "name": "separator1",
+            "label": "Input Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "text_column",
@@ -40,9 +40,9 @@
             "mandatory": true
         },
         {
-             "name": "separator2",
-             "label": "Configuration",
-             "type": "SEPARATOR"
+            "name": "separator2",
+            "label": "Configuration",
+            "type": "SEPARATOR"
         },
         {
             "name": "connection_info",
