@@ -2,7 +2,7 @@
     "meta": {
         "label": "Language Detection",
         "description": "Detect the dominant language of a text",
-        "icon": "icon-gcp-natural-language-api icon-dku-lab icon-cloud"
+        "icon": "icon-DKU_gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
