@@ -2,7 +2,7 @@
     "meta": {
         "label": "Named Entity Recognition",
         "description": "Recognize “real-world objects” (people names, dates, places, etc.) in a text",
-        "icon": "icon-gcp-natural-language-api icon-cloud"
+        "icon": "icon-DKU_gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
@@ -28,9 +28,9 @@
     ],
     "params": [
         {
-             "name": "separator1",
-             "label": "Input Parameters",
-             "type": "SEPARATOR"
+            "name": "separator1",
+            "label": "Input Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "text_column",
@@ -92,14 +92,14 @@
                 {
                     "value": "es",
                     "label": "Spanish"
-                }  
+                }
             ],
             "defaultValue": "auto"
         },
-         {
-             "name": "separator2",
-             "label": "Output Parameters",
-             "type": "SEPARATOR"
+        {
+            "name": "separator2",
+            "label": "Output Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "output_format",
@@ -125,9 +125,9 @@
             "defaultValue": false
         },
         {
-             "name": "separator3",
-             "label": "Configuration",
-             "type": "SEPARATOR"
+            "name": "separator3",
+            "label": "Configuration",
+            "type": "SEPARATOR"
         },
         {
             "name": "connection_info",
