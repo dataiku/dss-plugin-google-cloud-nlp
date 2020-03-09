@@ -2,7 +2,7 @@
     "meta": {
         "label": "Classification",
         "description": "Classify text into predefined categories (example: “/Arts & Entertainment/Music & Audio/Music Reference”)",
-        "icon": "icon-gcp-natural-language-api icon-cloud"
+        "icon": "icon-DKU_gcp-natural-language-apiicon-cloud"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
@@ -28,9 +28,9 @@
     ],
     "params": [
         {
-             "name": "separator1",
-             "label": "Input Parameters",
-             "type": "SEPARATOR"
+            "name": "separator1",
+            "label": "Input Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "text_column",
@@ -56,10 +56,10 @@
             ],
             "defaultValue": "auto"
         },
-         {
-             "name": "separator2",
-             "label": "Output Parameters",
-             "type": "SEPARATOR"
+        {
+            "name": "separator2",
+            "label": "Output Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "output_multiple_categories",
@@ -85,9 +85,9 @@
             "defaultValue": false
         },
         {
-             "name": "separator3",
-             "label": "Configuration",
-             "type": "SEPARATOR"
+            "name": "separator3",
+            "label": "Configuration",
+            "type": "SEPARATOR"
         },
         {
             "name": "connection_info",
