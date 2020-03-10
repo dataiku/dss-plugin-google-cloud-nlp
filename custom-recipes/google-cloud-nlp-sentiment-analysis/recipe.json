@@ -141,7 +141,7 @@
             "name": "connection_info",
             "label": "Cloud credential preset",
             "type": "PRESET",
-            "parameterSetId": "connection-info",
+            "parameterSetId": "google-cloud-nlp-connection-info",
             "mandatory": true
         }
     ],
