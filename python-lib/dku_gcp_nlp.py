@@ -4,14 +4,18 @@ from google.cloud import language
 from google.oauth2 import service_account
 from google.protobuf.json_format import MessageToJson
 
-ALL_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
+ALL_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
+                    'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
+
 
 def get_client(connection_info):
     credentials = _get_credentials(connection_info)
-    return(language.LanguageServiceClient(credentials = credentials))
+    return(language.LanguageServiceClient(credentials=credentials))
+
 
 def _distinct(l):
     return list(dict.fromkeys(l))
+
 
 def format_entities_results(raw_results, scale=None):
     result = json.loads(MessageToJson(raw_results))
@@ -19,17 +23,21 @@ def format_entities_results(raw_results, scale=None):
     output_row['entities'] = result.get('entities')
     output_row["raw_results"] = result
     for t in ALL_ENTITY_TYPES:
-        output_row[t] = _distinct([e["name"] for e in output_row["entities"] if e["type"] == t])
+        output_row[t] = _distinct(
+            [e["name"] for e in output_row["entities"] if e["type"] == t])
     return(output_row)
+
 
 def format_classification_results(raw_results):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
-    output_row['categories'] = [c['name'] for c in result.get('categories', [])]
-    #if remove_prefix:
+    output_row['categories'] = [c['name']
+                                for c in result.get('categories', [])]
+    # if remove_prefix:
     #    output_row['categories'] = [c.split('/')[-1] for c in output_row['categories']]
     output_row["raw_results"] = result
     return(output_row)
+
 
 def format_sentiment_results(raw_results, scale=None):
     result = json.loads(MessageToJson(raw_results))
@@ -45,6 +53,7 @@ def format_sentiment_results(raw_results, scale=None):
         output_row['detected_language'] = None
         output_row["raw_results"] = None
     return(output_row)
+
 
 def format_sentiment(score, scale):
     if scale == 'binary':
@@ -67,17 +76,20 @@ def format_sentiment(score, scale):
     else:
         return(round(score, 2))
 
+
 def _get_credentials(connection_info):
     if not connection_info.get("credentials"):
         return(None)
     try:
         credentials = json.loads(connection_info.get("credentials"))
     except Exception as e:
-       logging.error(e)
-       raise ValueError("Provided credentials are not JSON")
-    credentials = service_account.Credentials.from_service_account_info(credentials)
+        logging.error(e)
+        raise ValueError("Provided credentials are not JSON")
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials)
     if hasattr(credentials, 'service_account_email'):
-        logging.info("Credentials loaded : %s" % credentials.service_account_email)
+        logging.info("Credentials loaded : %s" %
+                     credentials.service_account_email)
     else:
         logging.info("Credentials loaded")
     return(credentials)

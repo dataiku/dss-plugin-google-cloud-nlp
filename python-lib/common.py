@@ -5,6 +5,7 @@ from functools import wraps
 BATCH_SIZE = 20
 PARALLELISM = 20
 
+
 def with_original_indices(func):
     @wraps(func)
     def w(it):
@@ -12,9 +13,11 @@ def with_original_indices(func):
         return func(text_list), original_indices
     return(w)
 
+
 def run_by_batch(func, input_df, text_column, batch_size, parallelism):
     with Pool(parallelism) as p:
         return(p.map(func, _iter_non_empty_rows_batches(input_df, text_column, batch_size=batch_size)))
+
 
 def _iter_non_empty_rows_batches(input_df, text_column, batch_size):
     text_list = []
@@ -31,6 +34,7 @@ def _iter_non_empty_rows_batches(input_df, text_column, batch_size):
             original_indices = []
     if len(text_list):
         yield text_list, original_indices
+
 
 def generate_unique(name, existing_names):
     # TODO WHY THIS FUNCTION?

@@ -90,10 +90,10 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "connection_info",
-            "label": "Cloud credential preset",
+            "name": "cloud_credentials_preset",
+            "label": "Cloud credentials preset",
             "type": "PRESET",
-            "parameterSetId": "google-cloud-nlp-connection-info",
+            "parameterSetId": "cloud-credentials",
             "mandatory": true
         }
     ],
