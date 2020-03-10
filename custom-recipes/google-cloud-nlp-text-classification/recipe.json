@@ -46,15 +46,11 @@
             "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "auto",
-                    "label": "Auto-detect"
-                },
-                {
                     "value": "en",
                     "label": "English"
                 }
             ],
-            "defaultValue": "auto"
+            "defaultValue": "en"
         },
         {
             "name": "separator2",

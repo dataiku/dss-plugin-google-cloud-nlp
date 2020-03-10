@@ -14,7 +14,7 @@ from common import *
 logging.basicConfig(level=logging.INFO,
                     format='[Google Cloud NLP plugin] %(levelname)s - %(message)s')
 
-connection_info = get_recipe_config().get("connection_info")
+cloud_credentials_preset = get_recipe_config().get("cloud_credentials_preset")
 text_column = get_recipe_config().get("text_column")
 language = get_recipe_config().get("language")
 remove_prefix = get_recipe_config().get("remove_prefix")
@@ -40,7 +40,7 @@ input_df = input_dataset.get_dataframe()
 
 @with_original_indices
 def classify(text_list):
-    client = get_client(connection_info)
+    client = get_client(cloud_credentials_preset)
     logging.info("request: %d characters" % (sum([len(t) for t in text_list])))
     start = time.time()
     document = nlp.types.Document(
