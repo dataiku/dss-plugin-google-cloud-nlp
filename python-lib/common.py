@@ -10,7 +10,7 @@ def with_original_indices(func):
     @wraps(func)
     def w(it):
         text_list, original_indices = it
-        return func(text_list), original_indices
+        return(func(text_list), original_indices)
     return(w)
 
 

@@ -45,7 +45,7 @@ def detect_sentiment(text_list):
     response = client.analyze_sentiment(
         document=document, encoding_type='UTF32')
     logging.info("request took %.3fs" % (time.time() - start))
-    return response
+    return(response)
 
 # TODO add raw results functionality
 for batch in run_by_batch(detect_sentiment, input_df, text_column, batch_size=BATCH_SIZE, parallelism=PARALLELISM):

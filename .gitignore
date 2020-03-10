@@ -1,6 +1,7 @@
 # DSS specific stuff
 dist/
 .wlock
+.ts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

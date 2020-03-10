@@ -14,7 +14,7 @@ def get_client(connection_info):
 
 
 def _distinct(l):
-    return list(dict.fromkeys(l))
+    return(list(dict.fromkeys(l)))
 
 
 def format_entities_results(raw_results, scale=None):
