@@ -2,8 +2,8 @@
 from multiprocessing import Pool
 from functools import wraps
 
-BATCH_SIZE = 1
-PARALLELISM = 32
+BATCH_SIZE = 20
+PARALLELISM = 20
 
 def with_original_indices(func):
     @wraps(func)
