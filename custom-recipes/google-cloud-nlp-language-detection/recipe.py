@@ -1,8 +1,12 @@
 import dataiku
-from dataiku.customrecipe import *
+from dataiku.customrecipe import get_recipe_config, get_input_names_for_role, get_output_names_for_role
 
-from dku_gcp_nlp import *
-from common import *
+import time
+import logging
+from google.cloud import language
+
+from dku_gcp_nlp import get_client, format_language_detection_results, DOCUMENT_TYPE, ENCODING_TYPE
+from common import with_original_indices, run_by_batch, generate_unique, BATCH_SIZE, PARALLELISM
 
 
 # ==============================================================================
