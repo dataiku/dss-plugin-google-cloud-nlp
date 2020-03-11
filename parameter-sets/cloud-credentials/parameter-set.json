@@ -9,7 +9,7 @@
         {
             "name": "gcp_service_account_key",
             "label": "GCP service account key",
-            "description": "Either the full path on the DSS server to a service account key file (.json or .p12) or the key as JSON. If empty, uses what was set by gcloud auth application-default login.",
+            "description": "Service account key as JSON. If empty, attempts to ascertain credentials from the environment.",
             "type": "PASSWORD",
             "mandatory": false
         }

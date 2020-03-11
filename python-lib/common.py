@@ -1,13 +1,15 @@
 # Note this implementation support batch while Google APIs don't (the code is common with AWS)
 from multiprocessing import Pool
 from functools import wraps
+import time
 
-BATCH_SIZE = 20
-PARALLELISM = 20
+BATCH_SIZE = 1
+PARALLELISM = 1
 
 
 def _distinct(l):
     return(list(dict.fromkeys(l)))
+
 
 def with_original_indices(func):
     @wraps(func)

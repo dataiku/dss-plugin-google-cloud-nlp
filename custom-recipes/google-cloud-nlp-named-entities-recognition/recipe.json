@@ -46,7 +46,7 @@
             "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "auto",
+                    "value": "",
                     "label": "Auto-detect"
                 },
                 {
@@ -94,7 +94,7 @@
                     "label": "Spanish"
                 }
             ],
-            "defaultValue": "auto"
+            "defaultValue": ""
         },
         {
             "name": "separator2",
