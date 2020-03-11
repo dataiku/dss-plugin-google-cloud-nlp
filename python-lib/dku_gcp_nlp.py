@@ -8,10 +8,12 @@ from google.protobuf.json_format import MessageToJson
 # CONSTANT DEFINITION
 # ==============================================================================
 
+DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
+ENCODING_TYPE = language.enums.EncodingType.UTF8
+
 ALL_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
                     'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
 
-DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 
 # ==============================================================================
 # API CLIENT SETUP
@@ -40,7 +42,9 @@ def get_client(cloud_credentials_preset):
 # NAMED ENTITY RECOGNITION
 # ==============================================================================
 
-
+def _distinct(l):
+    return(list(dict.fromkeys(l)))
+    
 def format_entities_results(raw_results):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
@@ -56,23 +60,22 @@ def format_entities_results(raw_results):
 # ==============================================================================
 
 
-def format_sentiment_results(raw_results, scale=None):
+def format_sentiment_results(raw_results, scale="ternary"):
     result = json.loads(MessageToJson(raw_results))
-    output_row = dict()
+    output_row = {
+        "raw_results": result,
+        "predicted_sentiment": None
+    }
     score = result.get("documentSentiment", {}).get("score")
     if score is not None:
-        output_row['predicted_sentiment'] = format_sentiment(score, scale)
-        output_row['detected_language'] = result.get('language')
-        output_row["raw_results"] = result
+        output_row['predicted_sentiment'] = scale_sentiment_score(score, scale)
+
     else:
-        logging.warn("API did not return sentiment")
-        output_row['predicted_sentiment'] = None
-        output_row['detected_language'] = None
-        output_row["raw_results"] = None
+        logging.warning("API did not return sentiment")
     return(output_row)
 
 
-def scale_sentiment_score(score, scale="ternary"):
+def scale_sentiment_score(score, scale):
     if scale == 'binary':
         return 'negative' if score < 0 else 'positive'
     elif scale == 'ternary':
@@ -92,6 +95,20 @@ def scale_sentiment_score(score, scale="ternary"):
         return(round((score+1)/2, 2))
     else:
         return(round(score, 2))
+
+# ==============================================================================
+# LANGUAGE DETECTION
+# ==============================================================================
+
+
+def format_language_detection_results(raw_results):
+    result = json.loads(MessageToJson(raw_results))
+    output_row = {
+        "raw_results": result,
+        "detected_language": result.get('language')
+    }
+    return(output_row)
+
 
 # ==============================================================================
 # TEXT CLASSIFICATION

@@ -1,14 +1,12 @@
 # Note this implementation support batch while Google APIs don't (the code is common with AWS)
 from multiprocessing import Pool
+from p_tqdm import p_uimap
 from functools import wraps
 import time
 
+# The Google NLP APIs do not support batch scoring
 BATCH_SIZE = 1
-PARALLELISM = 1
-
-
-def _distinct(l):
-    return(list(dict.fromkeys(l)))
+PARALLELISM = 20
 
 
 def with_original_indices(func):
@@ -22,6 +20,11 @@ def with_original_indices(func):
 def run_by_batch(func, input_df, text_column, batch_size, parallelism):
     with Pool(parallelism) as p:
         return(p.map(func, _iter_non_empty_rows_batches(input_df, text_column, batch_size=batch_size)))
+
+#def run_by_batch(func, input_df, text_column, batch_size, parallelism):
+#    iterator = p_uimap(func, _iter_non_empty_rows_batches(
+#        input_df, text_column, batch_size=batch_size), num_cpus=0.2)
+#    return(iterator)
 
 
 def _iter_non_empty_rows_batches(input_df, text_column, batch_size):
