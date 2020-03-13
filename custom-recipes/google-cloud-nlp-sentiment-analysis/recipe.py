@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dataiku
 import logging
 import time

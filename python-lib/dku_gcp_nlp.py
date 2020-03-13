@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import logging
 from google.cloud import language
@@ -61,7 +62,8 @@ def format_entities_results(raw_results):
 
 
 def format_sentiment_results(raw_results, scale="ternary"):
-    result = json.loads(MessageToJson(raw_results))
+    #result = json.loads(MessageToJson(raw_results))
+    result = raw_results
     output_row = {
         "raw_results": result,
         "predicted_sentiment": None
@@ -102,10 +104,11 @@ def scale_sentiment_score(score, scale):
 
 
 def format_language_detection_results(raw_results):
-    result = json.loads(MessageToJson(raw_results))
+    #result = json.loads(MessageToJson(raw_results))
+    result = raw_results
     output_row = {
         "raw_results": result,
-        "detected_language": result.get('language')
+        "detected_language": result.get('language', '')
     }
     return(output_row)
 
