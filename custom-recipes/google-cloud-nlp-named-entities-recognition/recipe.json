@@ -46,7 +46,7 @@
             "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "",
+                    "value": "auto",
                     "label": "Auto-detect"
                 },
                 {
@@ -94,7 +94,7 @@
                     "label": "Spanish"
                 }
             ],
-            "defaultValue": ""
+            "defaultValue": "auto"
         },
         {
             "name": "separator2",
@@ -117,12 +117,6 @@
             ],
             "defaultValue": "multiple_columns",
             "mandatory": true
-        },
-        {
-            "name": "should_output_raw_results",
-            "label": "Add raw response",
-            "type": "BOOLEAN",
-            "defaultValue": false
         },
         {
             "name": "separator3",

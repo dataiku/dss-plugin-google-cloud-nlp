@@ -75,12 +75,6 @@
             "defaultValue": "multiple"
         },
         {
-            "name": "should_output_raw_results",
-            "label": "Add raw response",
-            "type": "BOOLEAN",
-            "defaultValue": false
-        },
-        {
             "name": "separator3",
             "label": "Configuration",
             "type": "SEPARATOR"
