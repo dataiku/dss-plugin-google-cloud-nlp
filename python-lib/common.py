@@ -1,55 +1,10 @@
 # -*- coding: utf-8 -*-
 # Note this implementation support batch while Google APIs don't (the code is common with AWS)
-from multiprocessing import Pool
-import parmap
-from functools import wraps
+import itertools
+import math
 import time
-
-# The Google NLP APIs do not support batch scoring
-BATCH_SIZE = 1
-PARALLELISM = 1
-
-
-def with_original_indices(func):
-    @wraps(func)
-    def w(it):
-        text_list, original_indices = it
-        return(func(text_list), original_indices)
-    return(w)
-
-
-#def run_by_batch(func, input_df, text_column, batch_size, parallelism):
-#    m = parmap.map(func,
-#               _iter_non_empty_rows_batches(
-#                   input_df, text_column, batch_size=batch_size),
-#               pm_processes=PARALLELISM, pm_pbar=True
-#               )
-#    return(m)
-
-# def run_by_batch(func, input_df, text_column, batch_size, parallelism):
-#    iterator = p_uimap(func, _iter_non_empty_rows_batches(
-#        input_df, text_column, batch_size=batch_size), num_cpus=0.2)
-#    return(iterator)
-
-def run_by_batch(func, input_df, text_column, batch_size, parallelism):
-    with Pool(parallelism) as p:
-        return(p.map(func, _iter_non_empty_rows_batches(input_df, text_column, batch_size=batch_size)))
-
-def _iter_non_empty_rows_batches(input_df, text_column, batch_size):
-    text_list = []
-    original_indices = []
-    for index, row in input_df.iterrows():
-        row.fillna('')
-        text = row.get(text_column, '')
-        if isinstance(text, str) and text.strip() != '':
-            text_list.append(text)
-            original_indices.append(index)
-        if len(text_list) == batch_size:
-            yield text_list, original_indices
-            text_list = []
-            original_indices = []
-    if len(text_list):
-        yield text_list, original_indices
+from tqdm.contrib.concurrent import process_map
+from typing import Callable, List, Iterator, Tuple, Type, Union
 
 
 def generate_unique(name, existing_names):
@@ -60,42 +15,51 @@ def generate_unique(name, existing_names):
         new_name = name + "_{}".format(j)
     raise Exception("Failed to generated a unique name")
 
-from itertools import zip_longest
-import concurrent
-from typing import Callable, List, Dict, Type, Union
-from concurrent.futures import ProcessPoolExecutor
 
 def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
+    return(itertools.zip_longest(*args, fillvalue=fillvalue))
 
-def parallel_api_caller(input_df:            pd.DataFrame, 
-                        api_call_function:   Callable[[Union[Dict, List[Dict]]], Union[Dict, List[Dict]]],
+
+def do_sthg_stupid(x):
+    # TODO error handling and raw response output
+    output_dictionary = x[1]
+    output_dictionary["foo"] = "bar"
+    return(output_dictionary)
+
+
+def do_sthg_stupid_in_batch(x):
+     # TODO error handling and raw response output
+    output_dictionary = [dict(i[1]) for i in x if i is not None]
+    for i in output_dictionary:
+        i["foo"] = "bar"
+    return(output_dictionary)
+
+
+def parallel_api_caller(input_df:            pd.DataFrame,
+                        api_call_function:   Callable[[Union[Tuple, List[Tuple]]], Union[Tuple, List[Tuple]]],
                         output_schema:       Dict[AnyStr, Type],
-                        parallel_process:    int  = 10,
+                        parallel_processes:  int = 10,
                         api_support_batch:   bool = False,
-                        batch_size:          int  = 20,
-                        output_raw_response: bool = True,
-                        error_handling:      str  = 'fail',
-                       ) -> pd.DataFrame:
-    
-    if error_handling not in ['fail', 'warn']:
-        logging.error("Error handling argument not supported. Choose 'fail' or 'warn'")
-    
-    df_row_iterator = input_df.itertuples(index = False)
-    
-    with ProcessPoolExecutor() as executor:
-        if api_support_batch:
-            df_chunk_iterator = grouper(df_row_iterator, batch_size)
-            for rows in df_chunk_iterator:
-                print("batch")
-                print(rows)
-                print("\n")
-        else: # API does not support batch
-            for row in df_row_iterator:
-                print("not batch")
-                print(row)
-        
-    return("foo")
+                        batch_size:          int = 20,
+                        **kwargs
+                        ) -> pd.DataFrame:
+    # TODO test chunksize parameter directly on concurrent.futures
+    # TODO see if using concurrent.futures directly is not better, and then use submit?
+    df_iterator = input_df.iterrows()
+    len_iterator = len(input_df.index)
+    if api_support_batch:
+        df_iterator = grouper(df_iterator, batch_size)
+        len_iterator = math.ceil(len_iterator / batch_size)
+
+    results = process_map(api_call_function, df_iterator,
+                          total=len_iterator, max_workers=parallel_processes)
+    if api_support_batch:
+        results = list(itertools.chain(*results))
+    output_df = pd.DataFrame.from_records(
+        [{col: result.get(col) for col in output_schema.keys()}
+         for result in results]
+    ).astype(output_schema)
+    return(output_df)
