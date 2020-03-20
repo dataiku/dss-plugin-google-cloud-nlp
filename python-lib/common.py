@@ -42,6 +42,7 @@ def parallel_api_caller(input_df:            pd.DataFrame,
     # TODO add logic to automatically reroute return of api_call_function to 2 columns: response and error
     # TODO think about is it really our job to care about output_schema? or just route to response/error
     # and then let the user wrangle the wanted format out of the JSON response?
+    # TODO after all should we add error handling here?
     df_iterator = (i[1] for i in input_df.iterrows())
     len_iterator = len(input_df.index)
     if api_support_batch:
