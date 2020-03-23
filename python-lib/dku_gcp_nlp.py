@@ -12,7 +12,7 @@ from google.protobuf.json_format import MessageToJson
 DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 ENCODING_TYPE = language.enums.EncodingType.UTF8
 
-ALL_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
+NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
                     'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
 
 
@@ -42,11 +42,8 @@ def get_client(cloud_credentials_preset):
 # ==============================================================================
 # NAMED ENTITY RECOGNITION
 # ==============================================================================
-
-def _distinct(l):
-    return(list(dict.fromkeys(l)))
     
-def format_entities_results(raw_results):
+def format_named_entity_recognition_response(row, raw_response_col):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
     output_row['entities'] = result.get('entities')

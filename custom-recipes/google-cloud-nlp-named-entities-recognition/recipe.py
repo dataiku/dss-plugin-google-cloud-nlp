@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import dataiku
-import logging
-import time
 import json
-from google.cloud import language as nlp
+from google.cloud import language
 from dataiku.customrecipe import *
 from dku_gcp_nlp import *
 from common import *
@@ -17,17 +15,11 @@ logging.basicConfig(level=logging.INFO,
 
 cloud_credentials_preset = get_recipe_config().get("cloud_credentials_preset")
 text_column = get_recipe_config().get("text_column")
-language = get_recipe_config().get("language")
-if language == "auto":
-    language =
+language = get_recipe_config().get("language", "").replace("auto", "")
 output_format = get_recipe_config().get('output_format')
-should_output_raw_results = get_recipe_config().get('should_output_raw_results')
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
 input_dataset = dataiku.Dataset(input_dataset_name)
-input_schema = input_dataset.read_schema()
-input_columns_names = [col['name'] for col in input_schema]
-entities_column_name = generate_unique('entities', input_columns_names)
 
 output_dataset_name = get_output_names_for_role("output_dataset")[0]
 output_dataset = dataiku.Dataset(output_dataset_name)
@@ -37,33 +29,22 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 # ==============================================================================
 
 input_df = input_dataset.get_dataframe()
+client = get_client(cloud_credentials_preset)
 
 
-@with_original_indices
-def detect_entities(text_list):
-    client = get_client(cloud_credentials_preset)
-    logging.info("request: %d characters" % (sum([len(t) for t in text_list])))
-    start = time.time()
-    document = nlp.types.Document(
-        content=text_list[0], type=nlp.enums.Document.Type.PLAIN_TEXT, language=language)
-    response = client.analyze_entities(
-        document=document, encoding_type='UTF32')
-    logging.info("request took %.3fs" % (time.time() - start))
-    return(response)
+def call_api_named_entity_recognition(row, text_column, language):
+    document = language.types.Document(
+        content=row[text_column], language=language, type=DOCUMENT_TYPE)
+    print("bar")
+    response = client.analyze_sentiment(
+        document=document,
+        encoding_type=ENCODING_TYPE
+    )
+    print("success")
+    return(MessageToJson(response))
 
 
-for batch in run_by_batch(detect_entities, input_df, text_column, batch_size=BATCH_SIZE, parallelism=PARALLELISM):
-    raw_results, original_indices = batch
-    j = original_indices[0]
-    output = format_entities_results(raw_results)
-    if output_format == "multiple_columns":
-        for t in ALL_ENTITY_TYPES:
-            input_df.set_value(j, t, json.dumps(
-                output[t]) if len(output[t]) else '')
-    else:
-        input_df.set_value(j, entities_column_name,
-                           json.dumps(output['entities']))
-    if should_output_raw_results and output['raw_results']:
-        input_df.set_value(j, 'raw_results', json.dumps(output['raw_results']))
+output_df = api_parallelizer(input_df, call_api_named_entity_recognition,
+                                text_column=text_column, language=language, error_handling='fail')
 
-output_dataset.write_with_schema(input_df)
+output_dataset.write_with_schema(output_df)
