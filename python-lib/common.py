@@ -24,7 +24,8 @@ def generate_unique(name, existing_names):
         new_name = name + "_{}".format(j)
     raise Exception("Failed to generated a unique name")
 
-
+# TODO turn into decorator
+# TODO add row.isintince dict or list(dict) check
 def api_call_function_wrapper(api_call_function, row, error_handling, **api_call_function_kwargs):
     if error_handling not in ["warn", "fail"]:
         logging.error(
@@ -35,14 +36,15 @@ def api_call_function_wrapper(api_call_function, row, error_handling, **api_call
     try:
         row["response"] = api_call_function(
             row=row, **api_call_function_kwargs)
+    # TODO be more specific only possible errors from cloud / clients / requests
     except Exception as e:
         if error_handling == "warn":
             row["error"] = str(e)
             logging.warning(row["error"])
-            return(row)
+            return row
         else:
             raise e
-    return(row)
+    return row
 
 
 def api_parallelizer(input_df:           pd.DataFrame,
@@ -79,4 +81,5 @@ def api_parallelizer(input_df:           pd.DataFrame,
     output_df = pd.DataFrame.from_records(record_list) \
         .astype(output_schema) \
         .reindex(columns=list(input_df.columns) + [response_column, error_column])
-    return(output_df)
+    # TODO throw job warning if stuff in error_column
+    return(output_df, has_error)

@@ -5,6 +5,7 @@ from google.cloud import language
 from google.oauth2 import service_account
 from google.protobuf.json_format import MessageToJson
 
+# TODO remove all  return()
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
@@ -51,7 +52,7 @@ def format_named_entity_recognition_response(row, raw_response_col):
     for t in ALL_ENTITY_TYPES:
         output_row[t] = _distinct(
             [e["name"] for e in output_row["entities"] if e["type"] == t])
-    return(output_row)
+    return output_row
 
 # ==============================================================================
 # SENTIMENT ANALYSIS

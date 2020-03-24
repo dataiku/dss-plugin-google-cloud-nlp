@@ -38,6 +38,7 @@ client = get_client(cloud_configuration_preset)
 
 @sleep_and_retry
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
+@TODOtryexceptwrapper
 def call_api_named_entity_recognition(row, text_column, text_language=None):
     document = language.types.Document(
         content=row[text_column], language=text_language, type=DOCUMENT_TYPE)
