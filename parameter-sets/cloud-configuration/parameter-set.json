@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "label": "Cloud configuration",
+        "icon": "icon-gcp-natural-language-api icon-cloud"
+    },
+    "defaultDefinableAtProjectLevel": true,
+    "defaultDefinableInline": false,
+    "params": [
+        {
+            "name": "separator1",
+            "label": "Authentication",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "gcp_service_account_key",
+            "label": "GCP service account key",
+            "description": "Service account key as JSON. If empty, attempts to ascertain credentials from the environment.",
+            "type": "PASSWORD",
+            "mandatory": false
+        },
+        {
+            "name": "separator2",
+            "label": "API quota",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "api_quota_rate_limit",
+            "label": "Rate limit",
+            "description": "Maximum number of requests per period",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 600
+        },
+        {
+            "name": "api_quota_period",
+            "label": "Period",
+            "description": "Reset period of the quota in seconds",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 60
+        }
+    ]
+}

@@ -10,7 +10,6 @@ from typing import Callable, List, Dict, Tuple, Type, AnyStr, Union
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
-from ratelimit import limits, sleep_and_retry
 
 API_RATE_LIMIT_PERIOD = 60  # 1 minute
 API_RATE_LIMIT_QUOTA = 600  # 600 calls per period
@@ -26,9 +25,6 @@ def generate_unique(name, existing_names):
     raise Exception("Failed to generated a unique name")
 
 
-#@on_exception(expo, RateLimitException, max_time=API_RATE_LIMIT_PERIOD, max_tries=10)
-@sleep_and_retry
-@limits(calls=API_RATE_LIMIT_QUOTA, period=API_RATE_LIMIT_PERIOD)
 def api_call_function_wrapper(api_call_function, row, error_handling, **api_call_function_kwargs):
     if error_handling not in ["warn", "fail"]:
         logging.error(

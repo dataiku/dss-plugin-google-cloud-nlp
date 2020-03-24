@@ -124,10 +124,10 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "cloud_credentials_preset",
-            "label": "Cloud credentials preset",
+            "name": "cloud_configuration_preset",
+            "label": "Cloud configuration preset",
             "type": "PRESET",
-            "parameterSetId": "cloud-credentials",
+            "parameterSetId": "cloud-configuration",
             "mandatory": true
         }
     ],
