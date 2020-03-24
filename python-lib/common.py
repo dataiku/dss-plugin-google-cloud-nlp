@@ -7,11 +7,10 @@ import numpy as np
 import pandas as pd
 
 from typing import Callable, List, Dict, Tuple, Type, AnyStr, Union
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
-from ratelimit import limits, RateLimitException
-from backoff import on_exception, expo
+from ratelimit import limits, sleep_and_retry
 
 API_RATE_LIMIT_PERIOD = 60  # 1 minute
 API_RATE_LIMIT_QUOTA = 600  # 600 calls per period
@@ -27,32 +26,34 @@ def generate_unique(name, existing_names):
     raise Exception("Failed to generated a unique name")
 
 
-@on_exception(expo, RateLimitException, max_time=API_RATE_LIMIT_PERIOD, max_tries=5)
+#@on_exception(expo, RateLimitException, max_time=API_RATE_LIMIT_PERIOD, max_tries=10)
+@sleep_and_retry
 @limits(calls=API_RATE_LIMIT_QUOTA, period=API_RATE_LIMIT_PERIOD)
 def api_call_function_wrapper(api_call_function, row, error_handling, **api_call_function_kwargs):
     if error_handling not in ["warn", "fail"]:
         logging.error(
             "Error handling parameter can be either 'warn' or 'fail'.")
-    for new_key in ["response", "error"]:
-        row[generate_unique(new_key, row.keys())] = ''
-        try:
-            row["response"] = api_call_function(
-                row=row, **api_call_function_kwargs)
-        except Exception as e:
-            if error_handling == "warn":
-                row["error"] = str(e)
-                logging.warning(row["error"])
-                return(row)
-            else:
-                raise e
+    # generate unique error and response keys and fill them as empty string (default)
+    row[generate_unique("response", row.keys())] = ''
+    row[generate_unique("error", row.keys())] = ''
+    try:
+        row["response"] = api_call_function(
+            row=row, **api_call_function_kwargs)
+    except Exception as e:
+        if error_handling == "warn":
+            row["error"] = str(e)
+            logging.warning(row["error"])
+            return(row)
+        else:
+            raise e
     return(row)
 
 
-def api_parallelizer(input_df:            pd.DataFrame,
+def api_parallelizer(input_df:           pd.DataFrame,
                     api_call_function:   Callable[[Union[Dict, List[Dict]]], Union[Dict, List[Dict]]],
-                    parallel_processes:  int = 10,
+                    parallel_workers:    int = 5,
                     api_support_batch:   bool = False,
-                    batch_size:          int = 20,
+                    batch_size:          int = 10,
                     error_handling:      AnyStr = "fail",
                     **api_call_function_kwargs
                     ) -> pd.DataFrame:
@@ -61,10 +62,12 @@ def api_parallelizer(input_df:            pd.DataFrame,
     if api_support_batch:
         df_iterator = chunked(df_iterator, batch_size)
         len_iterator = math.ceil(len_iterator / batch_size)
-    output_schema = {**{"response": str, "error": str},
+    response_column =  generate_unique("response", input_df.columns)
+    error_column =  generate_unique("error", input_df.columns)
+    output_schema = {**{response_column: str, error_column: str},
                      **dict(input_df.dtypes)}
     results = []
-    with ProcessPoolExecutor(max_workers=parallel_processes) as pool:
+    with ThreadPoolExecutor(max_workers=parallel_workers) as pool:
         futures = [pool.submit(fn=api_call_function_wrapper,
                                api_call_function=api_call_function,
                                row=row,
@@ -77,5 +80,7 @@ def api_parallelizer(input_df:            pd.DataFrame,
         results = flatten(results)
     record_list = [
         {col: result.get(col) for col in output_schema.keys()} for result in results]
-    output_df = pd.DataFrame.from_records(record_list).astype(output_schema)
+    output_df = pd.DataFrame.from_records(record_list) \
+        .astype(output_schema) \
+        .reindex(columns=list(input_df.columns) + [response_column, error_column])
     return(output_df)
