@@ -5,7 +5,6 @@ from google.cloud import language
 from google.oauth2 import service_account
 from google.protobuf.json_format import MessageToJson
 
-# TODO remove all  return()
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
@@ -14,7 +13,7 @@ DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 ENCODING_TYPE = language.enums.EncodingType.UTF8
 
 NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
-                    'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
+                      'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
 
 
 # ==============================================================================
@@ -24,7 +23,7 @@ NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 
 
 def get_client(cloud_credentials_preset):
     if not cloud_credentials_preset.get("gcp_service_account_key"):
-        return(language.LanguageServiceClient())
+        return language.LanguageServiceClient()
     try:
         credentials = json.loads(
             cloud_credentials_preset.get("gcp_service_account_key"))
@@ -38,12 +37,13 @@ def get_client(cloud_credentials_preset):
                      credentials.service_account_email)
     else:
         logging.info("Credentials loaded")
-    return(language.LanguageServiceClient(credentials=credentials))
+    return language.LanguageServiceClient(credentials=credentials)
 
 # ==============================================================================
 # NAMED ENTITY RECOGNITION
 # ==============================================================================
-    
+
+
 def format_named_entity_recognition_response(row, raw_response_col):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
@@ -72,7 +72,7 @@ def format_sentiment_results(raw_results, scale="ternary"):
 
     else:
         logging.warning("API did not return sentiment")
-    return(output_row)
+    return output_row
 
 
 def scale_sentiment_score(score, scale):
@@ -92,9 +92,9 @@ def scale_sentiment_score(score, scale):
         else:
             return 'highly positive'
     elif scale == '0to1':
-        return(round((score+1)/2, 2))
+        return round((score+1)/2, 2)
     else:
-        return(round(score, 2))
+        return round(score, 2)
 
 # ==============================================================================
 # LANGUAGE DETECTION
@@ -108,7 +108,7 @@ def format_language_detection_results(raw_results):
         "raw_results": result,
         "detected_language": result.get('language', '')
     }
-    return(output_row)
+    return output_row
 
 
 # ==============================================================================
@@ -124,4 +124,4 @@ def format_classification_results(raw_results):
     # if remove_prefix:
     #    output_row['categories'] = [c.split('/')[-1] for c in output_row['categories']]
     output_row["raw_results"] = result
-    return(output_row)
+    return output_row

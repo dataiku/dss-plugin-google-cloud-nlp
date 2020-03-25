@@ -129,6 +129,23 @@
             "type": "PRESET",
             "parameterSetId": "cloud-configuration",
             "mandatory": true
+        },
+        {
+            "name": "error_handling",
+            "label": "API error handling",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "fail",
+                    "label": "Fail"
+                },
+                {
+                    "value": "warn",
+                    "label": "Warn"
+                }
+            ],
+            "defaultValue": "fail",
+            "mandatory": true
         }
     ],
     "resourceKeys": []
