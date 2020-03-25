@@ -45,13 +45,17 @@ client = get_client(cloud_configuration_preset)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
 @fail_or_warn_on_row(error_handling=error_handling)
 def call_api_named_entity_recognition(row, text_column, text_language=None):
-    document = language.types.Document(
-        content=row[text_column], language=text_language, type=DOCUMENT_TYPE)
-    response = client.analyze_entities(
-        document=document,
-        encoding_type=ENCODING_TYPE
-    )
-    return MessageToJson(response)
+    text = row[text_column]
+    if not isinstance(text, str):
+        return('')
+    else:
+        document = language.types.Document(
+            content=text, language=text_language, type=DOCUMENT_TYPE)
+        response = client.analyze_entities(
+            document=document,
+            encoding_type=ENCODING_TYPE
+        )
+        return MessageToJson(response)
 
 
 output_df = api_parallelizer(input_df, call_api_named_entity_recognition,

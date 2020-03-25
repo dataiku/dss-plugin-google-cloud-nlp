@@ -119,18 +119,6 @@
             "mandatory": true
         },
         {
-            "name": "separator3",
-            "label": "Configuration",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "cloud_configuration_preset",
-            "label": "Cloud configuration preset",
-            "type": "PRESET",
-            "parameterSetId": "cloud-configuration",
-            "mandatory": true
-        },
-        {
             "name": "error_handling",
             "label": "API error handling",
             "type": "SELECT",
@@ -145,6 +133,18 @@
                 }
             ],
             "defaultValue": "fail",
+            "mandatory": true
+        },
+        {
+            "name": "separator3",
+            "label": "Configuration",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "cloud_configuration_preset",
+            "label": "Cloud configuration preset",
+            "type": "PRESET",
+            "parameterSetId": "cloud-configuration",
             "mandatory": true
         }
     ],
