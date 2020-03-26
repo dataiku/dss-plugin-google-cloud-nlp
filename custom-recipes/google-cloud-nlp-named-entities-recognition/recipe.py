@@ -6,7 +6,7 @@ from retry import retry
 from google.cloud import language
 
 import dataiku
-from dataiku.customrecipe import get_recipe_config, get_input_names_for_role, get_output_names_for_role
+from dataiku.customrecipe import *
 
 from dku_gcp_nlp import *
 from common import *
