@@ -29,7 +29,8 @@
             "description": "Maximum number of requests per period",
             "type": "INT",
             "mandatory": true,
-            "defaultValue": 600
+            "defaultValue": 600,
+            "minI": 1
         },
         {
             "name": "api_quota_period",
@@ -37,7 +38,23 @@
             "description": "Reset period of the quota in seconds",
             "type": "INT",
             "mandatory": true,
-            "defaultValue": 60
+            "defaultValue": 60,
+            "minI": 1
+        },
+        {
+            "name": "separator3",
+            "label": "Performance tuning",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "parallel_workers",
+            "label": "Concurrency",
+            "description": "Maximum number of threads calling the API in parallel",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 5,
+            "minI": 1,
+            "maxI": 100
         }
     ]
 }

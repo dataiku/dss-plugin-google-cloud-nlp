@@ -13,8 +13,9 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
 
-API_RATE_LIMIT_PERIOD = 60  # 1 minute
-API_RATE_LIMIT_QUOTA = 600  # 600 calls per period
+# ==============================================================================
+# CONSTANT DEFINITION
+# ==============================================================================
 
 API_EXCEPTIONS = Exception
 try:
@@ -40,6 +41,9 @@ try:
 except ImportError:
     pass
 
+# ==============================================================================
+# FUNCTION DEFINITION
+# ==============================================================================
 
 def generate_unique(name, existing_names):
     new_name = name
@@ -52,6 +56,7 @@ def generate_unique(name, existing_names):
 
 
 def fail_or_warn_on_row(error_handling="fail", api_exceptions=API_EXCEPTIONS):
+    # TODO use enum for error handling
     if error_handling not in ["warn", "fail"]:
         raise ValueError(
             "Error handling parameter can be either 'warn' or 'fail'.")
@@ -62,7 +67,7 @@ def fail_or_warn_on_row(error_handling="fail", api_exceptions=API_EXCEPTIONS):
 
         def wrapped(row, *args, **kwargs):
             if not (isinstance(row, dict) or (isinstance(row, list) and isinstance(row[0], dict))):
-                raise TypeError(
+                raise ValueError(
                     "The 'row' parameter must be a dict or a list of dict.")
             response_key = generate_unique("raw_response", row.keys())
             error_key = generate_unique("error", row.keys())
@@ -85,7 +90,7 @@ def fail_or_warn_on_row(error_handling="fail", api_exceptions=API_EXCEPTIONS):
     return inner_decorator
 
 
-def api_parallelizer(input_df:           pd.DataFrame,
+def api_parallelizer(input_df:            pd.DataFrame,
                      api_call_function:   Callable[[Union[Dict, List[Dict]]], Union[Dict, List[Dict]]],
                      parallel_workers:    int = 5,
                      api_support_batch:   bool = False,

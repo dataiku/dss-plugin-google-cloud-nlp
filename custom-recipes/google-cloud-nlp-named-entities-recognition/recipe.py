@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from ratelimit import limits, sleep_and_retry
+from ratelimit import limits, RateLimitException
+from retry import retry
 from google.cloud import language
 
 import dataiku
@@ -9,7 +10,6 @@ from dataiku.customrecipe import get_recipe_config, get_input_names_for_role, ge
 
 from dku_gcp_nlp import *
 from common import *
-
 
 
 # ==============================================================================
@@ -22,6 +22,7 @@ logging.basicConfig(level=logging.INFO,
 cloud_configuration_preset = get_recipe_config().get("cloud_configuration_preset")
 api_quota_rate_limit = cloud_configuration_preset.get("api_quota_rate_limit")
 api_quota_period = cloud_configuration_preset.get("api_quota_period")
+parallel_workers = cloud_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
 output_format = get_recipe_config().get('output_format')
@@ -40,8 +41,7 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 input_df = input_dataset.get_dataframe()
 client = get_client(cloud_configuration_preset)
 
-
-@sleep_and_retry
+@retry((RateLimitException, ConnectionError), delay=api_quota_period, tries=10)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
 @fail_or_warn_on_row(error_handling=error_handling)
 def call_api_named_entity_recognition(row, text_column, text_language=None):
@@ -58,7 +58,8 @@ def call_api_named_entity_recognition(row, text_column, text_language=None):
         return MessageToJson(response)
 
 
-output_df = api_parallelizer(input_df, call_api_named_entity_recognition,
-                             text_column=text_column, text_language=text_language)
+output_df = api_parallelizer(input_df=input_df, api_call_function=call_api_named_entity_recognition,
+                             text_column=text_column, text_language=text_language,
+                             parallel_workers=parallel_workers)
 
 output_dataset.write_with_schema(output_df)
