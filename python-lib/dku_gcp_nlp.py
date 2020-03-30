@@ -15,21 +15,20 @@ ENCODING_TYPE = language.enums.EncodingType.UTF8
 NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
                       'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
 
-
 # ==============================================================================
-# API CLIENT SETUP
+# FUNCTION DEFINITION
 # ==============================================================================
 
 
-def get_client(cloud_credentials_preset):
-    if not cloud_credentials_preset.get("gcp_service_account_key"):
+def get_client(gcp_service_account_key=None):
+    """Get a Google Natural Language API client from the service account key."""
+    if gcp_service_account_key is None:
         return language.LanguageServiceClient()
     try:
-        credentials = json.loads(
-            cloud_credentials_preset.get("gcp_service_account_key"))
+        credentials = json.loads(gcp_service_account_key)
     except Exception as e:
         logging.error(e)
-        raise ValueError("Provided credentials are not JSON")
+        raise ValueError("GCP service account key is not valid JSON.")
     credentials = service_account.Credentials.from_service_account_info(
         credentials)
     if hasattr(credentials, 'service_account_email'):
@@ -39,12 +38,8 @@ def get_client(cloud_credentials_preset):
         logging.info("Credentials loaded")
     return language.LanguageServiceClient(credentials=credentials)
 
-# ==============================================================================
-# NAMED ENTITY RECOGNITION
-# ==============================================================================
 
-
-def format_named_entity_recognition_response(row, raw_response_col):
+def format_named_entity_recognition(row, raw_response_col):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
     output_row['entities'] = result.get('entities')
@@ -54,12 +49,8 @@ def format_named_entity_recognition_response(row, raw_response_col):
             [e["name"] for e in output_row["entities"] if e["type"] == t])
     return output_row
 
-# ==============================================================================
-# SENTIMENT ANALYSIS
-# ==============================================================================
 
-
-def format_sentiment_results(raw_results, scale="ternary"):
+def format_sentiment(raw_results, scale="ternary"):
     #result = json.loads(MessageToJson(raw_results))
     result = raw_results
     output_row = {
@@ -96,27 +87,7 @@ def scale_sentiment_score(score, scale):
     else:
         return round(score, 2)
 
-# ==============================================================================
-# LANGUAGE DETECTION
-# ==============================================================================
-
-
-def format_language_detection_results(raw_results):
-    #result = json.loads(MessageToJson(raw_results))
-    result = raw_results
-    output_row = {
-        "raw_results": result,
-        "detected_language": result.get('language', '')
-    }
-    return output_row
-
-
-# ==============================================================================
-# TEXT CLASSIFICATION
-# ==============================================================================
-
-
-def format_classification_results(raw_results):
+def format_text_classification(raw_results):
     result = json.loads(MessageToJson(raw_results))
     output_row = dict()
     output_row['categories'] = [c['name']

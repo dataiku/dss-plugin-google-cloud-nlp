@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Classification",
+        "label": "Text Classification",
         "description": "Classify text into predefined categories (example: “/Arts & Entertainment/Music & Audio/Music Reference”)",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
@@ -80,10 +80,27 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "cloud_credentials_preset",
-            "label": "Cloud credentials preset",
+            "name": "api_configuration_preset",
+            "label": "API configuration preset",
             "type": "PRESET",
-            "parameterSetId": "cloud-credentials",
+            "parameterSetId": "api-configuration",
+            "mandatory": true
+        },
+        {
+            "name": "error_handling",
+            "label": "API error handling",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "fail",
+                    "label": "Fail"
+                },
+                {
+                    "value": "warn",
+                    "label": "Warn"
+                }
+            ],
+            "defaultValue": "fail",
             "mandatory": true
         }
     ],

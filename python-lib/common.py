@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from typing import Callable, List, Dict, Tuple, Type, AnyStr, Union
+from enum import Enum
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
@@ -16,6 +17,10 @@ from tqdm.auto import tqdm as tqdm_auto
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
+
+class ErrorHandlingEnum(Enum):
+    FAIL = "fail"
+    WARN = "warn"
 
 API_EXCEPTIONS = Exception
 try:
@@ -45,7 +50,8 @@ except ImportError:
 # FUNCTION DEFINITION
 # ==============================================================================
 
-def generate_unique(name, existing_names):
+def generate_unique(name: AnyStr, existing_names: List):
+     """Generate a unique name among existing ones by appending a number."""
     new_name = name
     for j in range(1, 1000):
         if new_name not in existing_names:
@@ -55,11 +61,19 @@ def generate_unique(name, existing_names):
     raise Exception("Failed to generated a unique name")
 
 
-def fail_or_warn_on_row(error_handling="fail", api_exceptions=API_EXCEPTIONS):
-    # TODO use enum for error handling
-    if error_handling not in ["warn", "fail"]:
+def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL, api_exceptions=API_EXCEPTIONS):
+     """
+     Decorate an API calling function to:
+     - make sure it has a 'row' parameter which is a dict of list of dict
+     - return the full row with a new 'raw_result' key containing the result of the function
+     - handles errors from the function with two methods:
+        * (fail - default) fail if there is an error
+        * (warn) do not fail on a list of API-related exceptions, just log it
+          and return the row with a new 'error' key 
+     """
+    if error_handling not in ErrorHandlingEnum:
         raise ValueError(
-            "Error handling parameter can be either 'warn' or 'fail'.")
+            "Error handling parameter must be in " + str(list(ErrorHandlingEnum)))
 
     def inner_decorator(func):
         if "row" not in inspect.getfullargspec(func).args:
@@ -97,6 +111,13 @@ def api_parallelizer(input_df:            pd.DataFrame,
                      batch_size:          int = 10,
                      **api_call_function_kwargs
                      ) -> pd.DataFrame:
+    """
+    Apply an API call function in parallel to a pandas.DataFrame.
+    The DataFrame is passed to the function as row dictionaries.
+    Parallelism works by:
+    - (default) sending multiple concurrent threads
+    - if the API supports it, sending batches of row
+    """
     df_iterator = (i[1].to_dict() for i in input_df.iterrows())
     len_iterator = len(input_df.index)
     if api_support_batch:

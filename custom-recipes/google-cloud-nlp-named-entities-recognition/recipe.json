@@ -124,10 +124,10 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "cloud_configuration_preset",
-            "label": "Cloud configuration preset",
+            "name": "api_configuration_preset",
+            "label": "API configuration preset",
             "type": "PRESET",
-            "parameterSetId": "cloud-configuration",
+            "parameterSetId": "api-configuration",
             "mandatory": true
         },
         {

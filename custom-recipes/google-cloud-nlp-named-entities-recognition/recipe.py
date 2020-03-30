@@ -19,7 +19,8 @@ from common import *
 logging.basicConfig(level=logging.INFO,
                     format='[Google Cloud NLP plugin] %(levelname)s - %(message)s')
 
-cloud_configuration_preset = get_recipe_config().get("cloud_configuration_preset")
+cloud_configuration_preset = get_recipe_config().get("cloud_configuration_preset", {})
+gcp_service_account_key = cloud_configuration_preset.get("gcp_service_account_key")
 api_quota_rate_limit = cloud_configuration_preset.get("api_quota_rate_limit")
 api_quota_period = cloud_configuration_preset.get("api_quota_period")
 parallel_workers = cloud_configuration_preset.get("parallel_workers")
@@ -43,7 +44,7 @@ client = get_client(cloud_configuration_preset)
 
 @retry((RateLimitException, ConnectionError), delay=api_quota_period, tries=10)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
-@fail_or_warn_on_row(error_handling=error_handling)
+@fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL)
 def call_api_named_entity_recognition(row, text_column, text_language=None):
     text = row[text_column]
     if not isinstance(text, str):

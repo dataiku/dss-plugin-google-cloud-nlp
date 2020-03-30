@@ -1,6 +1,6 @@
 {
     "meta": {
-        "label": "Cloud configuration",
+        "label": "API configuration",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "defaultDefinableAtProjectLevel": true,
