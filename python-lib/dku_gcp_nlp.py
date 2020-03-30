@@ -21,7 +21,9 @@ NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 
 
 
 def get_client(gcp_service_account_key=None):
-    """Get a Google Natural Language API client from the service account key."""
+    """
+    Get a Google Natural Language API client from the service account key.
+    """
     if gcp_service_account_key is None:
         return language.LanguageServiceClient()
     try:
