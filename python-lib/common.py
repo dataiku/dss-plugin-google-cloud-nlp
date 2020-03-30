@@ -51,7 +51,9 @@ except ImportError:
 # ==============================================================================
 
 def generate_unique(name: AnyStr, existing_names: List):
-     """Generate a unique name among existing ones by appending a number."""
+     """
+     Generate a unique name among existing ones by appending a number.
+     """
     new_name = name
     for j in range(1, 1000):
         if new_name not in existing_names:
