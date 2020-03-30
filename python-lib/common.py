@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-import itertools
 import logging
 import inspect
-import functools
-import time
 import math
-import numpy as np
-import pandas as pd
+import json
 
-from typing import Callable, List, Dict, Tuple, Type, AnyStr, Union
+from functools import wraps
 from enum import Enum
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from typing import Callable, AnyStr, List
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import pandas as pd
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
 
@@ -18,9 +17,11 @@ from tqdm.auto import tqdm as tqdm_auto
 # CONSTANT DEFINITION
 # ==============================================================================
 
+
 class ErrorHandlingEnum(Enum):
     FAIL = "fail"
     WARN = "warn"
+
 
 API_EXCEPTIONS = Exception
 try:
@@ -40,20 +41,16 @@ try:
     API_EXCEPTIONS = (GoogleAPICallError, RetryError)
 except ImportError:
     pass
-try:
-    from azure.cognitiveservices.vision.computervision.models._models_py3 import ComputerVisionError, ComputerVisionErrorException
-    API_EXCEPTIONS = (ComputerVisionError, ComputerVisionErrorException)
-except ImportError:
-    pass
 
 # ==============================================================================
 # FUNCTION DEFINITION
 # ==============================================================================
 
+
 def generate_unique(name: AnyStr, existing_names: List):
-     """
-     Generate a unique name among existing ones by appending a number.
-     """
+    """
+    Generate a unique name among existing ones by appending a number.
+    """
     new_name = name
     for j in range(1, 1000):
         if new_name not in existing_names:
@@ -63,31 +60,45 @@ def generate_unique(name: AnyStr, existing_names: List):
     raise Exception("Failed to generated a unique name")
 
 
-def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL, api_exceptions=API_EXCEPTIONS):
-     """
-     Decorate an API calling function to:
-     - make sure it has a 'row' parameter which is a dict of list of dict
-     - return the full row with a new 'raw_result' key containing the result of the function
-     - handles errors from the function with two methods:
+def safe_json_loads(str_to_check, error_handling=ErrorHandlingEnum.FAIL.value):
+    assert error_handling in [i.value for i in ErrorHandlingEnum]
+    if error_handling == ErrorHandlingEnum.FAIL:
+        output = json.loads(str_to_check)
+    else:
+        try:
+            output = json.loads(str_to_check)
+        except (TypeError, ValueError) as e:
+            logging.warn(e)
+            return({}, False)
+    return(output, True)
+
+
+def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
+                        api_exceptions=API_EXCEPTIONS):
+    """
+    Decorate an API calling function to:
+    - make sure it has a 'row' parameter which is a dict of list of dict
+    - return the row with a 'raw_result' key containing the function result
+    - handles errors from the function with two methods:
         * (fail - default) fail if there is an error
         * (warn) do not fail on a list of API-related exceptions, just log it
-          and return the row with a new 'error' key 
+        and return the row with a new 'error' key
      """
-    if error_handling not in ErrorHandlingEnum:
-        raise ValueError(
-            "Error handling parameter must be in " + str(list(ErrorHandlingEnum)))
+    assert error_handling in [i.value for i in ErrorHandlingEnum]
 
     def inner_decorator(func):
         if "row" not in inspect.getfullargspec(func).args:
             raise ValueError("Function must have 'row' as first parameter.")
 
+        @wraps(func)
         def wrapped(row, *args, **kwargs):
-            if not (isinstance(row, dict) or (isinstance(row, list) and isinstance(row[0], dict))):
+            if not (isinstance(row, dict) or (isinstance(row, list) and
+                    isinstance(row[0], dict))):
                 raise ValueError(
                     "The 'row' parameter must be a dict or a list of dict.")
             response_key = generate_unique("raw_response", row.keys())
             error_key = generate_unique("error", row.keys())
-            if error_handling == 'fail':
+            if error_handling == ErrorHandlingEnum.FAIL.value:
                 row[response_key] = func(row=row, *args, **kwargs)
                 return row
             else:
@@ -99,6 +110,7 @@ def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL, api_exceptions=AP
                 except api_exceptions as e:
                     logging.warning(str(e))
                     row[error_key] = str(e)
+                    raise e
                     return row
 
         return wrapped
@@ -107,7 +119,7 @@ def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL, api_exceptions=AP
 
 
 def api_parallelizer(input_df:            pd.DataFrame,
-                     api_call_function:   Callable[[Union[Dict, List[Dict]]], Union[Dict, List[Dict]]],
+                     api_call_function:   Callable,
                      parallel_workers:    int = 5,
                      api_support_batch:   bool = False,
                      batch_size:          int = 10,
@@ -131,15 +143,21 @@ def api_parallelizer(input_df:            pd.DataFrame,
                      **dict(input_df.dtypes)}
     results = []
     with ThreadPoolExecutor(max_workers=parallel_workers) as pool:
-        futures = [pool.submit(fn=api_call_function, row=row, **api_call_function_kwargs)
-                   for row in df_iterator]
+        futures = [
+            pool.submit(
+                fn=api_call_function, row=row, **api_call_function_kwargs)
+            for row in df_iterator
+        ]
         for f in tqdm_auto(as_completed(futures), total=len_iterator):
             results.append(f.result())
     if api_support_batch:
         results = flatten(results)
     record_list = [
-        {col: result.get(col) for col in output_schema.keys()} for result in results]
+        {col: result.get(col) for col in output_schema.keys()}
+        for result in results
+    ]
+    column_list = list(input_df.columns) + [response_column, error_column]
     output_df = pd.DataFrame.from_records(record_list) \
         .astype(output_schema) \
-        .reindex(columns=list(input_df.columns) + [response_column, error_column])
+        .reindex(columns=column_list)
     return output_df

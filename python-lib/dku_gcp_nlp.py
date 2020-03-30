@@ -5,6 +5,8 @@ from google.cloud import language
 from google.oauth2 import service_account
 from google.protobuf.json_format import MessageToJson
 
+from common import generate_unique, safe_json_loads
+
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
@@ -12,8 +14,11 @@ from google.protobuf.json_format import MessageToJson
 DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 ENCODING_TYPE = language.enums.EncodingType.UTF8
 
-NAMED_ENTITY_TYPES = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART',
-                      'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE']
+NAMED_ENTITY_TYPES = [
+    'UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
+    'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER',
+    'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE'
+]
 
 # ==============================================================================
 # FUNCTION DEFINITION
@@ -34,22 +39,29 @@ def get_client(gcp_service_account_key=None):
     credentials = service_account.Credentials.from_service_account_info(
         credentials)
     if hasattr(credentials, 'service_account_email'):
-        logging.info("Credentials loaded : %s" %
+        logging.info("GCP service account loaded with email: %s" %
                      credentials.service_account_email)
     else:
         logging.info("Credentials loaded")
     return language.LanguageServiceClient(credentials=credentials)
 
 
-def format_named_entity_recognition(row, raw_response_col):
-    result = json.loads(MessageToJson(raw_results))
-    output_row = dict()
-    output_row['entities'] = result.get('entities')
-    output_row["raw_results"] = result
-    for t in ALL_ENTITY_TYPES:
-        output_row[t] = _distinct(
-            [e["name"] for e in output_row["entities"] if e["type"] == t])
-    return output_row
+def format_named_entity_recognition(row, response_column,
+                                    output_format, error_handling):
+    raw_response = row[response_column]
+    response, valid_response = safe_json_loads(raw_response, error_handling)
+    if output_format == "single_column":
+        entity_column = generate_unique("entities", row.keys())
+        row[entity_column] = response.get("entities", '')
+    else:
+        entities = response.get("entities", [])
+        for n in NAMED_ENTITY_TYPES:
+            entity_type_column = generate_unique(
+                "entity_type_" + n.lower(), row.keys())
+            row[entity_type_column] = [
+                e for e in entities if e.get("type", '') == n
+            ]
+    return row
 
 
 def format_sentiment(raw_results, scale="ternary"):

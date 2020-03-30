@@ -4,26 +4,35 @@ import logging
 from ratelimit import limits, RateLimitException
 from retry import retry
 from google.cloud import language
+from google.protobuf.json_format import MessageToJson
 
 import dataiku
-from dataiku.customrecipe import *
-
-from dku_gcp_nlp import *
-from common import *
+from common import generate_unique, fail_or_warn_on_row, api_parallelizer
+from dataiku.customrecipe import (
+    get_recipe_config, get_input_names_for_role,
+    get_output_names_for_role
+)
+from dku_gcp_nlp import (
+    DOCUMENT_TYPE, ENCODING_TYPE,
+    get_client, format_named_entity_recognition
+)
 
 
 # ==============================================================================
 # SETUP
 # ==============================================================================
 
-logging.basicConfig(level=logging.INFO,
-                    format='[Google Cloud NLP plugin] %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='[Google Cloud NLP plugin] %(levelname)s - %(message)s'
+)
 
-cloud_configuration_preset = get_recipe_config().get("cloud_configuration_preset", {})
-gcp_service_account_key = cloud_configuration_preset.get("gcp_service_account_key")
-api_quota_rate_limit = cloud_configuration_preset.get("api_quota_rate_limit")
-api_quota_period = cloud_configuration_preset.get("api_quota_period")
-parallel_workers = cloud_configuration_preset.get("parallel_workers")
+api_configuration_preset = get_recipe_config().get("api_configuration_preset", {})
+gcp_service_account_key = api_configuration_preset.get(
+    "gcp_service_account_key")
+api_quota_rate_limit = api_configuration_preset.get("api_quota_rate_limit")
+api_quota_period = api_configuration_preset.get("api_quota_period")
+parallel_workers = api_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
 output_format = get_recipe_config().get('output_format')
@@ -40,11 +49,13 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 # ==============================================================================
 
 input_df = input_dataset.get_dataframe()
+response_column = generate_unique("raw_response", input_df.columns)
 client = get_client(gcp_service_account_key)
 
-@retry((RateLimitException, ConnectionError), delay=api_quota_period, tries=10)
+# TODO the retry should only retry for specific exceptions
+@retry((OSError, RateLimitException), delay=api_quota_period, tries=5)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
-@fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL)
+@fail_or_warn_on_row(error_handling=error_handling)
 def call_api_named_entity_recognition(row, text_column, text_language=None):
     text = row[text_column]
     if not isinstance(text, str):
@@ -59,8 +70,14 @@ def call_api_named_entity_recognition(row, text_column, text_language=None):
         return MessageToJson(response)
 
 
-output_df = api_parallelizer(input_df=input_df, api_call_function=call_api_named_entity_recognition,
-                             text_column=text_column, text_language=text_language,
-                             parallel_workers=parallel_workers)
+output_df = api_parallelizer(
+    input_df=input_df, api_call_function=call_api_named_entity_recognition,
+    text_column=text_column, text_language=text_language,
+    parallel_workers=parallel_workers)
+
+output_df = output_df.apply(
+    func=format_named_entity_recognition, axis=1,
+    response_column=response_column, output_format=output_format,
+    error_handling=error_handling)
 
 output_dataset.write_with_schema(output_df)
