@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Text Classification",
-        "description": "Classify text into predefined categories (example: “/Arts & Entertainment/Music & Audio/Music Reference”)",
+        "description": "Classify text into predefined content categories",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
