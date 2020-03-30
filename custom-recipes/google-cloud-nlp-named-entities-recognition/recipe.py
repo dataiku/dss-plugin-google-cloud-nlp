@@ -40,7 +40,7 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 # ==============================================================================
 
 input_df = input_dataset.get_dataframe()
-client = get_client(cloud_configuration_preset)
+client = get_client(gcp_service_account_key)
 
 @retry((RateLimitException, ConnectionError), delay=api_quota_period, tries=10)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
