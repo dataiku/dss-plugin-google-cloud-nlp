@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Text Classification",
-        "description": "Classify text into predefined categories",
+        "description": "Classify text into 700+ predefined content categories",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
