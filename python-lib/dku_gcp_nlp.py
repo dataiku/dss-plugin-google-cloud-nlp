@@ -45,7 +45,8 @@ def get_client(gcp_service_account_key=None):
                      credentials.service_account_email)
     else:
         logging.info("Credentials loaded")
-    return language.LanguageServiceClient(credentials=credentials)
+    client = language.LanguageServiceClient(credentials=credentials)
+    return client
 
 
 def format_named_entity_recognition(
