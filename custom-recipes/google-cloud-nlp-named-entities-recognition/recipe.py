@@ -36,6 +36,7 @@ parallel_workers = api_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
 output_format = get_recipe_config().get('output_format')
+entity_sentiment = get_recipe_config().get('entity_sentiment')
 error_handling = get_recipe_config().get('error_handling')
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
@@ -52,28 +53,31 @@ input_df = input_dataset.get_dataframe()
 response_column = generate_unique("raw_response", input_df.columns)
 client = get_client(gcp_service_account_key)
 
-# TODO the retry should only retry for specific exceptions
-@retry((OSError, RateLimitException), delay=api_quota_period, tries=5)
+
+@retry((RateLimitException, OSError), delay=api_quota_period, tries=5)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
 @fail_or_warn_on_row(error_handling=error_handling)
-def call_api_named_entity_recognition(row, text_column, text_language=None):
+def call_api_named_entity_recognition(row, text_column, text_language=None,
+                                      entity_sentiment=False):
     text = row[text_column]
-    if not isinstance(text, str):
+    if not isinstance(text, str) or text.strip() == '':
         return('')
     else:
         document = language.types.Document(
             content=text, language=text_language, type=DOCUMENT_TYPE)
-        response = client.analyze_entities(
-            document=document,
-            encoding_type=ENCODING_TYPE
-        )
+        if entity_sentiment:
+            response = client.analyze_entity_sentiment(
+                document=document, encoding_type=ENCODING_TYPE)
+        else:
+            response = client.analyze_entities(
+                document=document, encoding_type=ENCODING_TYPE)
         return MessageToJson(response)
 
 
 output_df = api_parallelizer(
     input_df=input_df, api_call_function=call_api_named_entity_recognition,
     text_column=text_column, text_language=text_language,
-    parallel_workers=parallel_workers)
+    entity_sentiment=entity_sentiment, parallel_workers=parallel_workers)
 
 output_df = output_df.apply(
     func=format_named_entity_recognition, axis=1,

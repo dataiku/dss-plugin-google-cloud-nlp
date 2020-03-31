@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Sentiment Analysis",
-        "description": "Analyze the sentiment polarity (positive, negative, neutral) of a text",
+        "description": "Analyze the sentiment polarity of a text",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
@@ -34,10 +34,13 @@
         },
         {
             "name": "text_column",
-            "label": "Input text column",
+            "label": "Text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
-            "mandatory": true
+            "mandatory": true,
+            "allowedColumnTypes": [
+                "string"
+            ]
         },
         {
             "name": "language",
@@ -105,23 +108,52 @@
             "selectChoices": [
                 {
                     "value": "binary",
-                    "label": "negative / positive"
+                    "label": "Negative / Positive"
                 },
                 {
                     "value": "ternary",
-                    "label": "negative / neutral / positive"
+                    "label": "Negative / Neutral / Positive"
                 },
                 {
-                    "value": "1to5",
-                    "label": "highly negative / negative / neutral / positive / highly positive"
+                    "value": "quinary",
+                    "label": "Highly negative / Negative / Neutral / Positive / Highly positive"
                 },
                 {
-                    "value": "0to1",
-                    "label": "Number between 0 (highly negative) and 1 (highly positive)"
+                    "value": "rescale_zero_to_one",
+                    "label": "Number between 0 and 1"
                 },
                 {
-                    "value": "minus1to1",
-                    "label": "Number between -1 (highly negative) and 1 (highly positive)"
+                    "value": "rescale_minusone_to_one",
+                    "label": "Number between -1 and 1"
+                }
+            ],
+            "defaultValue": "ternary"
+        },
+        {
+            "name": "num_categories",
+            "label": "Max number of categories",
+            "type": "INT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "binary",
+                    "label": "Negative / Positive"
+                },
+                {
+                    "value": "ternary",
+                    "label": "Negative / Neutral / Positive"
+                },
+                {
+                    "value": "quinary",
+                    "label": "Highly negative / Negative / Neutral / Positive / Highly positive"
+                },
+                {
+                    "value": "rescale_zero_to_one",
+                    "label": "Number between 0 and 1"
+                },
+                {
+                    "value": "rescale_minusone_to_one",
+                    "label": "Number between -1 and 1"
                 }
             ],
             "defaultValue": "ternary"
@@ -140,7 +172,7 @@
         },
         {
             "name": "error_handling",
-            "label": "API error handling",
+            "label": "Error handling",
             "type": "SELECT",
             "selectChoices": [
                 {

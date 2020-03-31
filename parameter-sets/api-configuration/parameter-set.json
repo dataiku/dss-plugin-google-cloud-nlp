@@ -52,7 +52,7 @@
             "description": "Maximum number of threads calling the API in parallel",
             "type": "INT",
             "mandatory": true,
-            "defaultValue": 5,
+            "defaultValue": 4,
             "minI": 1,
             "maxI": 100
         }

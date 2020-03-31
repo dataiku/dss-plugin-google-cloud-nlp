@@ -61,16 +61,21 @@ def generate_unique(name: AnyStr, existing_names: List):
 
 
 def safe_json_loads(str_to_check, error_handling=ErrorHandlingEnum.FAIL.value):
+    """
+    Wrap json.loads with an additional parameter to handle errors:
+    - 'fail' to use json.loads, which fails on invalid data
+    - 'warn' to try json.loads and return an empty dict if data is invalid
+    """
     assert error_handling in [i.value for i in ErrorHandlingEnum]
     if error_handling == ErrorHandlingEnum.FAIL:
         output = json.loads(str_to_check)
     else:
         try:
             output = json.loads(str_to_check)
-        except (TypeError, ValueError) as e:
-            logging.warn(e)
-            return({}, False)
-    return(output, True)
+        except (TypeError, ValueError):
+            logging.warning("Invalid JSON: '" + str(str_to_check) + "'")
+            output = {}
+    return output
 
 
 def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
@@ -93,7 +98,7 @@ def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
         @wraps(func)
         def wrapped(row, *args, **kwargs):
             if not (isinstance(row, dict) or (isinstance(row, list) and
-                    isinstance(row[0], dict))):
+                                              isinstance(row[0], dict))):
                 raise ValueError(
                     "The 'row' parameter must be a dict or a list of dict.")
             response_key = generate_unique("raw_response", row.keys())
@@ -110,7 +115,6 @@ def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
                 except api_exceptions as e:
                     logging.warning(str(e))
                     row[error_key] = str(e)
-                    raise e
                     return row
 
         return wrapped

@@ -34,10 +34,13 @@
         },
         {
             "name": "text_column",
-            "label": "Input text column",
+            "label": "Text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
-            "mandatory": true
+            "mandatory": true,
+            "allowedColumnTypes": [
+                "string"
+            ]
         },
         {
             "name": "language",
@@ -50,7 +53,8 @@
                     "label": "English"
                 }
             ],
-            "defaultValue": "en"
+            "defaultValue": "en",
+            "description": "Only supported language"
         },
         {
             "name": "separator2",
@@ -58,21 +62,32 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "output_multiple_categories",
-            "label": "Category handling",
+            "name": "output_format",
+            "label": "Format",
             "type": "SELECT",
             "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "multiple",
-                    "label": "Multiple categories"
+                    "value": "single_column",
+                    "label": "Single JSON column"
                 },
                 {
-                    "value": "single",
-                    "label": "Single category"
+                    "value": "multiple_columns",
+                    "label": "One JSON column by category"
                 }
             ],
-            "defaultValue": "multiple"
+            "defaultValue": "multiple_columns"
+        },
+        {
+            "name": "num_categories",
+            "label": "Number of categories",
+            "description": "Maximum number of categories to extract",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 3,
+            "minI": 1,
+            "maxI": 100,
+            "visibilityCondition": "model.output_format == 'multiple_columns'"
         },
         {
             "name": "separator3",
@@ -88,7 +103,7 @@
         },
         {
             "name": "error_handling",
-            "label": "API error handling",
+            "label": "Error handling",
             "type": "SELECT",
             "selectChoices": [
                 {

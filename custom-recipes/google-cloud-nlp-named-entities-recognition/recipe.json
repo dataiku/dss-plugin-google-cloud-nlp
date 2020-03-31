@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Named Entity Recognition",
-        "description": "Recognize “real-world objects” (people names, dates, places, etc.) in a text",
+        "description": "Recognize “real-world objects” (people, places, products, companies, etc.) in a text",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
@@ -34,10 +34,13 @@
         },
         {
             "name": "text_column",
-            "label": "Input text column",
+            "label": "Text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
-            "mandatory": true
+            "mandatory": true,
+            "allowedColumnTypes": [
+                "string"
+            ]
         },
         {
             "name": "language",
@@ -103,20 +106,27 @@
         },
         {
             "name": "output_format",
-            "label": "Output format",
+            "label": "Format",
             "type": "SELECT",
             "selectChoices": [
                 {
                     "value": "single_column",
-                    "label": "A single JSON column"
+                    "label": "Single JSON column "
                 },
                 {
                     "value": "multiple_columns",
-                    "label": "One column per entity type"
+                    "label": "One JSON column by entity type"
                 }
             ],
             "defaultValue": "multiple_columns",
             "mandatory": true
+        },
+        {
+            "name": "entity_sentiment",
+            "label": "Entity sentiment",
+            "description": "Compute at additional cost",
+            "type": "BOOLEAN",
+            "defaultValue": false
         },
         {
             "name": "separator3",
@@ -132,7 +142,7 @@
         },
         {
             "name": "error_handling",
-            "label": "API error handling",
+            "label": "Error handling",
             "type": "SELECT",
             "selectChoices": [
                 {
