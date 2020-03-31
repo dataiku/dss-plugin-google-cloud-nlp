@@ -7,10 +7,11 @@ from google.cloud import language
 from google.protobuf.json_format import MessageToJson
 
 import dataiku
-from common import generate_unique, fail_or_warn_on_row, api_parallelizer
+from api_calling_utils import (
+    generate_unique, fail_or_warn_on_row, api_parallelizer
+)
 from dataiku.customrecipe import (
-    get_recipe_config, get_input_names_for_role,
-    get_output_names_for_role
+    get_recipe_config, get_input_names_for_role, get_output_names_for_role
 )
 from dku_gcp_nlp import (
     DOCUMENT_TYPE, get_client, format_text_classification

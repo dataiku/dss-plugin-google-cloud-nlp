@@ -73,7 +73,7 @@
                 },
                 {
                     "value": "multiple_columns",
-                    "label": "One JSON column by category"
+                    "label": "Multiple columns by category"
                 }
             ],
             "defaultValue": "multiple_columns"

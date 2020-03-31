@@ -3,9 +3,11 @@ import json
 import logging
 from google.cloud import language
 from google.oauth2 import service_account
-from google.protobuf.json_format import MessageToJson
+from typing import AnyStr, Dict, Union
 
-from common import generate_unique, safe_json_loads
+from api_calling_utils import (
+    ErrorHandlingEnum, generate_unique, safe_json_loads
+)
 
 # ==============================================================================
 # CONSTANT DEFINITION
@@ -46,8 +48,18 @@ def get_client(gcp_service_account_key=None):
     return language.LanguageServiceClient(credentials=credentials)
 
 
-def format_named_entity_recognition(row, response_column,
-                                    output_format, error_handling):
+def format_named_entity_recognition(
+    row: Dict,
+    response_column: AnyStr,
+    output_format: AnyStr = "multiple_columns",
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+) -> Dict:
+    """
+    Format the API response for entity recognition to:
+    - make sure response is valid JSON
+    - expand results to multiple JSON columns (one by entity type)
+    or put all entities as a list in a single JSON column
+    """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     if output_format == "single_column":
@@ -66,8 +78,18 @@ def format_named_entity_recognition(row, response_column,
     return row
 
 
-def format_sentiment_analysis(row, response_column,
-                              sentiment_scale, error_handling):
+def format_sentiment_analysis(
+    row: Dict,
+    response_column: AnyStr,
+    sentiment_scale: AnyStr = "ternary",
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+) -> Dict:
+    """
+    Format the API response for sentiment analysis to:
+    - make sure response is valid JSON
+    - expand results to two score and magnitude columns
+    - scale the score according to predefined categorical or numerical rules
+    """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     sentiment_score_column = generate_unique(
@@ -95,7 +117,13 @@ def format_sentiment_analysis(row, response_column,
     return row
 
 
-def scale_sentiment_score(score, scale='ternary'):
+def scale_sentiment_score(
+    score: float,
+    scale: AnyStr = 'ternary'
+) -> Union[AnyStr, float]:
+    """
+    Scale the score according to predefined categorical or numerical rules
+    """
     if scale == 'binary':
         return 'negative' if score < 0 else 'positive'
     elif scale == 'ternary':
@@ -117,13 +145,24 @@ def scale_sentiment_score(score, scale='ternary'):
         else:
             return 'highly positive'
     elif scale == 'rescale_zero_to_one':
-        return (score+1.)/2
+        return float((score+1.)/2)
     else:
-        return score
+        return float(score)
 
 
-def format_text_classification(row, response_column, output_format,
-                               num_categories, error_handling):
+def format_text_classification(
+    row: Dict,
+    response_column: AnyStr,
+    output_format: AnyStr = "multiple_columns",
+    num_categories: int = 3,
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+) -> Dict:
+    """
+    Format the API response for text classification to:
+    - make sure response is valid JSON
+    - expand results to multiple JSON columns (one by classification category)
+    or put all categories as a list in a single JSON column
+    """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     if output_format == "single_column":

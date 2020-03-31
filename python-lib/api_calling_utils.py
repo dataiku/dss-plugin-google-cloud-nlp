@@ -6,7 +6,7 @@ import json
 
 from functools import wraps
 from enum import Enum
-from typing import Callable, AnyStr, List
+from typing import Callable, AnyStr, List, Tuple, Dict, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -47,7 +47,7 @@ except ImportError:
 # ==============================================================================
 
 
-def generate_unique(name: AnyStr, existing_names: List):
+def generate_unique(name: AnyStr, existing_names: List) -> AnyStr:
     """
     Generate a unique name among existing ones by appending a number.
     """
@@ -60,7 +60,10 @@ def generate_unique(name: AnyStr, existing_names: List):
     raise Exception("Failed to generated a unique name")
 
 
-def safe_json_loads(str_to_check, error_handling=ErrorHandlingEnum.FAIL.value):
+def safe_json_loads(
+    str_to_check: AnyStr,
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+) -> Dict:
     """
     Wrap json.loads with an additional parameter to handle errors:
     - 'fail' to use json.loads, which fails on invalid data
@@ -78,8 +81,10 @@ def safe_json_loads(str_to_check, error_handling=ErrorHandlingEnum.FAIL.value):
     return output
 
 
-def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
-                        api_exceptions=API_EXCEPTIONS):
+def fail_or_warn_on_row(
+    api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+) -> Callable:
     """
     Decorate an API calling function to:
     - make sure it has a 'row' parameter which is a dict of list of dict
@@ -122,13 +127,14 @@ def fail_or_warn_on_row(error_handling=ErrorHandlingEnum.FAIL.value,
     return inner_decorator
 
 
-def api_parallelizer(input_df:            pd.DataFrame,
-                     api_call_function:   Callable,
-                     parallel_workers:    int = 5,
-                     api_support_batch:   bool = False,
-                     batch_size:          int = 10,
-                     **api_call_function_kwargs
-                     ) -> pd.DataFrame:
+def api_parallelizer(
+    input_df: pd.DataFrame,
+    api_call_function: Callable,
+    parallel_workers: int = 5,
+    api_support_batch: bool = False,
+    batch_size: int = 10,
+    **api_call_function_kwargs
+) -> pd.DataFrame:
     """
     Apply an API call function in parallel to a pandas.DataFrame.
     The DataFrame is passed to the function as row dictionaries.

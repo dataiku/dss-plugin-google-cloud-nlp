@@ -130,35 +130,6 @@
             "defaultValue": "ternary"
         },
         {
-            "name": "num_categories",
-            "label": "Max number of categories",
-            "type": "INT",
-            "mandatory": true,
-            "selectChoices": [
-                {
-                    "value": "binary",
-                    "label": "Negative / Positive"
-                },
-                {
-                    "value": "ternary",
-                    "label": "Negative / Neutral / Positive"
-                },
-                {
-                    "value": "quinary",
-                    "label": "Highly negative / Negative / Neutral / Positive / Highly positive"
-                },
-                {
-                    "value": "rescale_zero_to_one",
-                    "label": "Number between 0 and 1"
-                },
-                {
-                    "value": "rescale_minusone_to_one",
-                    "label": "Number between -1 and 1"
-                }
-            ],
-            "defaultValue": "ternary"
-        },
-        {
             "name": "separator3",
             "label": "Configuration",
             "type": "SEPARATOR"

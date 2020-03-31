@@ -26,7 +26,7 @@
         {
             "name": "api_quota_rate_limit",
             "label": "Rate limit",
-            "description": "Maximum number of requests per period",
+            "description": "Maximum number of requests per period for a given DSS activity",
             "type": "INT",
             "mandatory": true,
             "defaultValue": 600,

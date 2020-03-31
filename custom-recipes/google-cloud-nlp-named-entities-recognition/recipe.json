@@ -115,7 +115,7 @@
                 },
                 {
                     "value": "multiple_columns",
-                    "label": "One JSON column by entity type"
+                    "label": "Multiple columns by entity type"
                 }
             ],
             "defaultValue": "multiple_columns",
