@@ -87,7 +87,7 @@ def fail_or_warn_on_row(
 ) -> Callable:
     """
     Decorate an API calling function to:
-    - make sure it has a 'row' parameter which is a dict of list of dict
+    - make sure it has a 'row' parameter which is a dict or list of dict
     - return the row with a 'raw_result' key containing the function result
     - handles errors from the function with two methods:
         * (fail - default) fail if there is an error
