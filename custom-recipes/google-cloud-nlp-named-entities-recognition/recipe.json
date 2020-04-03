@@ -115,7 +115,7 @@
                 },
                 {
                     "value": "multiple_columns",
-                    "label": "Multiple columns by entity type"
+                    "label": "Multiple columnss by entity type"
                 }
             ],
             "defaultValue": "multiple_columns",
@@ -142,7 +142,7 @@
         },
         {
             "name": "error_handling",
-            "label": "Error handling",
+            "label": "API error handling",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -154,7 +154,7 @@
                     "label": "Warn"
                 }
             ],
-            "defaultValue": "fail",
+            "defaultValue": "warn",
             "mandatory": true
         }
     ],

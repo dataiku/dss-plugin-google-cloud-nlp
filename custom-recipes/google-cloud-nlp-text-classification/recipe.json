@@ -103,7 +103,7 @@
         },
         {
             "name": "error_handling",
-            "label": "Error handling",
+            "label": "API error handling",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -115,7 +115,7 @@
                     "label": "Warn"
                 }
             ],
-            "defaultValue": "fail",
+            "defaultValue": "warn",
             "mandatory": true
         }
     ],
