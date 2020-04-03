@@ -83,7 +83,8 @@ def safe_json_loads(
 
 def fail_or_warn_on_row(
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
-    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value,
+    verbose: bool = False
 ) -> Callable:
     """
     Decorate an API calling function to:
@@ -107,19 +108,30 @@ def fail_or_warn_on_row(
                 raise ValueError(
                     "The 'row' parameter must be a dict or a list of dict.")
             response_key = generate_unique("raw_response", row.keys())
-            error_key = generate_unique("error", row.keys())
+            error_message_key = generate_unique("error_message", row.keys())
+            if verbose:
+                error_type_key = generate_unique("error_type", row.keys())
+                error_raw_key = generate_unique("error_raw", row.keys())
             if error_handling == ErrorHandlingEnum.FAIL.value:
                 row[response_key] = func(row=row, *args, **kwargs)
                 return row
             else:
                 row[response_key] = ''
-                row[error_key] = ''
+                row[error_message_key] = ''
+                if verbose:
+                    row[error_type_key] = ''
+                    row[error_raw_key] = ''
                 try:
                     row[response_key] = func(row=row, *args, **kwargs)
                     return row
                 except api_exceptions as e:
-                    logging.warning(str(e))
-                    row[error_key] = str(e)
+                    row[error_message_key] = str(e)
+                    if verbose:
+                        logging.warning(repr(e))
+                        row[error_type_key] = str(type(e).__name__)
+                        row[error_raw_key] = str(e.args)
+                    else:
+                        logging.warning(str(e))
                     return row
 
         return wrapped
