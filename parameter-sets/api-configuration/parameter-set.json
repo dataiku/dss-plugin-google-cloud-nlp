@@ -9,7 +9,8 @@
         {
             "name": "separator1",
             "label": "Authentication",
-            "type": "SEPARATOR"
+            "type": "SEPARATOR",
+            "description": "Please refer to the GCP documentation:https://cloud.google.com/iam/docs/creating-managing-service-account-keys"
         },
         {
             "name": "gcp_service_account_key",
