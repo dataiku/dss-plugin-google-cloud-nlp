@@ -81,6 +81,7 @@ def safe_json_loads(
     return output
 
 
+# TODO make it work for batch scoring
 def fail_or_warn_on_row(
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: AnyStr = ErrorHandlingEnum.FAIL.value,
