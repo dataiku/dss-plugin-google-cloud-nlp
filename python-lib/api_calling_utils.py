@@ -155,41 +155,11 @@ def fail_or_warn_on_row(
                             row[error_raw_key] = error_raw
                         else:
                             del row[error_raw_key]
-
-                    else:
-                        logging.warning(str(e))
                     return row
 
         return wrapped
 
     return inner_decorator
-
-
-def _try_except_error_enrichment(
-    func: Callable,
-    row: Dict,
-    api_exceptions: Union[Exception, Tuple[Exception]]
-):
-    response_key = generate_unique("raw_response", row.keys())
-    error_message_key = generate_unique("error_message", row.keys())
-    error_type_key = generate_unique("error_type", row.keys())
-    error_raw_key = generate_unique("error_raw", row.keys())
-    for k in [response_key, error_message_key, error_type_key, error_raw_key]:
-        row[k] = ''
-    try:
-        row[response_key] = func(row=row, *args, **kwargs)
-                    return row
-                except api_exceptions as e:
-                    row[error_message_key] = str(e)
-                    module = str(inspect.getmodule(e).__name__)
-                    class_name = str(type(e).__qualname__)
-                    row[error_type_key] = module + "." + class_name
-                    if verbose:
-                        row[error_raw_key] = str(e.args)
-                        logging.warning(repr(e))
-                    else:
-                        logging.warning(str(e))
-                    return row
 
 
 def api_parallelizer(
