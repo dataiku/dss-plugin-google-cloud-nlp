@@ -81,10 +81,10 @@ def safe_json_loads(
     return output
 
 
-# TODO make it work for batch scoring
 def fail_or_warn_on_row(
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: AnyStr = ErrorHandlingEnum.FAIL.value,
+    api_support_batch: bool = False,
     verbose: bool = False
 ) -> Callable:
     """
@@ -111,19 +111,73 @@ def fail_or_warn_on_row(
             response_key = generate_unique("raw_response", row.keys())
             error_message_key = generate_unique("error_message", row.keys())
             error_type_key = generate_unique("error_type", row.keys())
-            if verbose:
-                error_raw_key = generate_unique("error_raw", row.keys())
+            error_raw_key = generate_unique("error_raw", row.keys())
+            new_keys = [
+                response_key, error_message_key,
+                error_type_key, error_raw_key
+            ]
             if error_handling == ErrorHandlingEnum.FAIL.value:
-                row[response_key] = func(row=row, *args, **kwargs)
+                if api_support_batch:
+                    for i in range(len(row)):
+                        row[i][response_key] = func(row=row, *args, **kwargs)
+                else:
+                    row[response_key] = func(row=row, *args, **kwargs)
                 return row
-            else:
-                row[response_key] = ''
-                row[error_message_key] = ''
-                row[error_type_key] = ''
-                if verbose:
-                    row[error_raw_key] = ''
+            elif error_handling == ErrorHandlingEnum.WARN.value:
+                for k in new_keys:
+                    if api_support_batch:
+                        for i in range(len(row)):
+                            row[i][k] = ''
+                    else:
+                        row[k] = ''
                 try:
                     row[response_key] = func(row=row, *args, **kwargs)
+                    return row
+                except api_exceptions as e:
+                    error_str = str(e)
+                    logging.warning(error_str)
+                    module = str(inspect.getmodule(e).__name__)
+                    class_name = str(type(e).__qualname__)
+                    error_type = module + "." + class_name
+                    error_raw = str(e.args)
+                    if api_support_batch:
+                        for i in range(len(row)):
+                            row[i][error_message_key] = error_str
+                            row[i][error_type_key] = error_type
+                            if verbose:
+                                row[i][error_raw_key] = error_raw
+                            else:
+                                del row[i][error_raw_key]
+                    else:
+                        row[error_message_key] = error_str
+                        row[error_type_key] = error_type
+                        if verbose:
+                            row[error_raw_key] = error_raw
+                        else:
+                            del row[error_raw_key]
+
+                    else:
+                        logging.warning(str(e))
+                    return row
+
+        return wrapped
+
+    return inner_decorator
+
+
+def _try_except_error_enrichment(
+    func: Callable,
+    row: Dict,
+    api_exceptions: Union[Exception, Tuple[Exception]]
+):
+    response_key = generate_unique("raw_response", row.keys())
+    error_message_key = generate_unique("error_message", row.keys())
+    error_type_key = generate_unique("error_type", row.keys())
+    error_raw_key = generate_unique("error_raw", row.keys())
+    for k in [response_key, error_message_key, error_type_key, error_raw_key]:
+        row[k] = ''
+    try:
+        row[response_key] = func(row=row, *args, **kwargs)
                     return row
                 except api_exceptions as e:
                     row[error_message_key] = str(e)
@@ -136,10 +190,6 @@ def fail_or_warn_on_row(
                     else:
                         logging.warning(str(e))
                     return row
-
-        return wrapped
-
-    return inner_decorator
 
 
 def api_parallelizer(
