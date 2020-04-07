@@ -131,7 +131,12 @@ def fail_or_warn_on_row(
                     else:
                         row[k] = ''
                 try:
-                    row[response_key] = func(row=row, *args, **kwargs)
+                    if api_support_batch:
+                        for i in range(len(row)):
+                            row[i][response_key] = func(
+                                row=row, *args, **kwargs)
+                    else:
+                        row[response_key] = func(row=row, *args, **kwargs)
                     return row
                 except api_exceptions as e:
                     error_str = str(e)
