@@ -30,7 +30,6 @@ try:
 except ImportError:
     pass
 try:
-    # TODO check if I can use even more specific errors
     from boto3.exceptions import Boto3Error
     from botocore.exceptions import BotoCoreError
     API_EXCEPTIONS = (Boto3Error, BotoCoreError)
@@ -84,12 +83,11 @@ def safe_json_loads(
 def fail_or_warn_on_row(
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: AnyStr = ErrorHandlingEnum.FAIL.value,
-    api_support_batch: bool = False,
     verbose: bool = False
 ) -> Callable:
     """
     Decorate an API calling function to:
-    - make sure it has a 'row' parameter which is a dict or list of dict
+    - ensure it has a 'row' parameter which is a dict (BATCH *not* supported)
     - return the row with a 'raw_result' key containing the function result
     - handles errors from the function with two methods:
         * (fail - default) fail if there is an error
@@ -104,8 +102,7 @@ def fail_or_warn_on_row(
 
         @wraps(func)
         def wrapped(row, *args, **kwargs):
-            if not (isinstance(row, dict) or (isinstance(row, list) and
-                                              isinstance(row[0], dict))):
+            if not isinstance(row, dict):
                 raise ValueError(
                     "The 'row' parameter must be a dict or a list of dict.")
             response_key = generate_unique("raw_response", row.keys())
@@ -117,26 +114,13 @@ def fail_or_warn_on_row(
                 error_type_key, error_raw_key
             ]
             if error_handling == ErrorHandlingEnum.FAIL.value:
-                if api_support_batch:
-                    for i in range(len(row)):
-                        row[i][response_key] = func(row=row, *args, **kwargs)
-                else:
-                    row[response_key] = func(row=row, *args, **kwargs)
+                row[response_key] = func(row=row, *args, **kwargs)
                 return row
             elif error_handling == ErrorHandlingEnum.WARN.value:
                 for k in new_keys:
-                    if api_support_batch:
-                        for i in range(len(row)):
-                            row[i][k] = ''
-                    else:
-                        row[k] = ''
+                    row[k] = ''
                 try:
-                    if api_support_batch:
-                        for i in range(len(row)):
-                            row[i][response_key] = func(
-                                row=row, *args, **kwargs)
-                    else:
-                        row[response_key] = func(row=row, *args, **kwargs)
+                    row[response_key] = func(row=row, *args, **kwargs)
                     return row
                 except api_exceptions as e:
                     error_str = str(e)
@@ -145,26 +129,23 @@ def fail_or_warn_on_row(
                     class_name = str(type(e).__qualname__)
                     error_type = module + "." + class_name
                     error_raw = str(e.args)
-                    if api_support_batch:
-                        for i in range(len(row)):
-                            row[i][error_message_key] = error_str
-                            row[i][error_type_key] = error_type
-                            if verbose:
-                                row[i][error_raw_key] = error_raw
-                            else:
-                                del row[i][error_raw_key]
+                    row[error_message_key] = error_str
+                    row[error_type_key] = error_type
+                    if verbose:
+                        row[error_raw_key] = error_raw
                     else:
-                        row[error_message_key] = error_str
-                        row[error_type_key] = error_type
-                        if verbose:
-                            row[error_raw_key] = error_raw
-                        else:
-                            del row[error_raw_key]
+                        del row[error_raw_key]
                     return row
 
         return wrapped
 
     return inner_decorator
+
+
+def fail_or_warn_on_batch():
+    # TODO write it ;)
+    # May need to write cloud-specific decorator
+    return None
 
 
 def api_parallelizer(
