@@ -103,8 +103,7 @@ def fail_or_warn_on_row(
         @wraps(func)
         def wrapped(row, *args, **kwargs):
             if not isinstance(row, dict):
-                raise ValueError(
-                    "The 'row' parameter must be a dict or a list of dict.")
+                raise ValueError("The 'row' parameter must be a dict.")
             response_key = generate_unique("raw_response", row.keys())
             error_message_key = generate_unique("error_message", row.keys())
             error_type_key = generate_unique("error_type", row.keys())
