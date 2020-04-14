@@ -37,7 +37,8 @@ text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
 output_format = get_recipe_config().get('output_format')
 num_categories = int(get_recipe_config().get('num_categories'))
-error_handling = get_recipe_config().get('error_handling')
+error_handling = get_recipe_config().get('error_handling', '')
+error_handling = ErrorHandlingEnum[error_handling.upper()]
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
 input_dataset = dataiku.Dataset(input_dataset_name)

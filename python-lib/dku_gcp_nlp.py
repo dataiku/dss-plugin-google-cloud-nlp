@@ -53,7 +53,8 @@ def format_named_entity_recognition(
     row: Dict,
     response_column: AnyStr,
     output_format: AnyStr = "multiple_columns",
-    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+    column_prefix: AnyStr = "ner_api",
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for entity recognition to:
@@ -64,13 +65,13 @@ def format_named_entity_recognition(
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     if output_format == "single_column":
-        entity_column = generate_unique("entities", row.keys())
+        entity_column = generate_unique("entities", row.keys(), column_prefix)
         row[entity_column] = response.get("entities", '')
     else:
         entities = response.get("entities", [])
         for n in NAMED_ENTITY_TYPES:
             entity_type_column = generate_unique(
-                "entity_type_" + n.lower(), row.keys())
+                "entity_type_" + n.lower(), row.keys(), column_prefix)
             row[entity_type_column] = [
                 e for e in entities if e.get("type", '') == n
             ]
@@ -83,7 +84,8 @@ def format_sentiment_analysis(
     row: Dict,
     response_column: AnyStr,
     sentiment_scale: AnyStr = "ternary",
-    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+    column_prefix: AnyStr = "sentiment_api",
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for sentiment analysis to:
@@ -94,11 +96,11 @@ def format_sentiment_analysis(
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     sentiment_score_column = generate_unique(
-        "sentiment_score", row.keys())
+        "score", row.keys(), column_prefix)
     sentiment_score_scaled_column = generate_unique(
-        "sentiment_score_scaled", row.keys())
+        "score_scaled", row.keys(), column_prefix)
     sentiment_magnitude_column = generate_unique(
-        "sentiment_magnitude", row.keys())
+        "magnitude", row.keys(), column_prefix)
     sentiment = response.get("documentSentiment", {})
     if sentiment == {}:
         logging.warning("API did not return sentiment")
@@ -156,7 +158,8 @@ def format_text_classification(
     response_column: AnyStr,
     output_format: AnyStr = "multiple_columns",
     num_categories: int = 3,
-    error_handling: AnyStr = ErrorHandlingEnum.FAIL.value
+    column_prefix: AnyStr = "classification_api",
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for text classification to:
@@ -168,16 +171,16 @@ def format_text_classification(
     response = safe_json_loads(raw_response, error_handling)
     if output_format == "single_column":
         classification_column = generate_unique(
-            "classification_categories", row.keys())
+            "categories", row.keys(), column_prefix)
         row[classification_column] = response.get("categories", '')
     else:
         categories = response.get("categories", [])
         for n in range(num_categories):
             category_column = generate_unique(
-                "classification_category_" + str(n), row.keys())
+                "category_" + str(n), row.keys(), column_prefix)
             confidence_column = generate_unique(
-                "classification_category_" + str(n) + "_confidence",
-                row.keys())
+                "category_" + str(n) + "_confidence", row.keys(), 
+                column_prefix)
             if len(categories) > n:
                 row[category_column] = categories[n].get("name", '')
                 row[confidence_column] = categories[n].get("confidence")
