@@ -51,8 +51,7 @@ if text_column is None or len(text_column) == 0:
     raise ValueError("You must specify the input text column.")
 if text_column not in input_columns_names:
     raise ValueError(
-        "Column '{}' is not present in the input dataset.".format(text_column)
-    )
+        "Column '{}' is not present in the input dataset.".format(text_column))
 
 # ==============================================================================
 # RUN

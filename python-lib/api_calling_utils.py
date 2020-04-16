@@ -18,7 +18,7 @@ from param_enums import ErrorHandlingEnum
 # CONSTANT DEFINITION
 # ==============================================================================
 
-
+# TODO turn this into Enum
 API_COLUMN_LIST = ["response", "error_message", "error_type", "error_raw"]
 
 API_EXCEPTIONS = Exception
@@ -126,11 +126,11 @@ def fail_or_warn_batch(
     api_call_function: Callable,
     api_column_dict: Dict,
     batch: List[Dict],
-    result_key: AnyStr,
-    error_key: AnyStr,
-    index_key: AnyStr,
-    error_message_key: AnyStr = None,
-    error_type_key: AnyStr = None,
+    batch_result_key: AnyStr,
+    batch_error_key: AnyStr,
+    batch_index_key: AnyStr,
+    batch_error_message_key: AnyStr = None,
+    batch_error_type_key: AnyStr = None,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
     verbose: bool = False,
@@ -148,11 +148,11 @@ def fail_or_warn_batch(
     """
     if error_handling == ErrorHandlingEnum.fail:
         response = api_call_function(batch=batch, **api_call_function_kwargs)
-        results = response.get(result_key, [])
-        errors = response.get(error_key, [])
+        results = response.get(batch_result_key, [])
+        errors = response.get(batch_error_key, [])
         for i in range(len(batch)):
             batch[i][api_column_dict["response"]] = ''
-            result = [r for r in results if r.get(index_key) == i][:1]
+            result = [r for r in results if r.get(batch_index_key) == i]
             if len(result) > 0:
                 batch[i][api_column_dict["response"]] = result[0]
             if len(errors) > 0:
@@ -162,27 +162,28 @@ def fail_or_warn_batch(
         try:
             response = api_call_function(
                 batch=batch, **api_call_function_kwargs)
-            results = response.get(result_key, [])
-            errors = response.get(error_key, [])
+            results = response.get(batch_result_key, [])
+            errors = response.get(batch_error_key, [])
             for i in range(len(batch)):
                 for k in api_column_dict.values():
                     batch[i][k] = ''
-                result = [r for r in results if r[index_key] == i][:1]
-                error = [r for r in errors if r[index_key] == i][:1]
+                result = [r for r in results if r.get(batch_index_key) == i]
+                error = [r for r in errors if r.get(batch_index_key) == i]
                 if len(result) > 0:
                     batch[i][api_column_dict["response"]] = result[0]
                 if len(error) > 0:
                     logging.warning(str(error))
                     batch[i][api_column_dict["error_message"]] = error.get(
-                        error_message_key, '')
+                        batch_error_message_key, '')
                     batch[i][api_column_dict["error_type"]] = error.get(
-                        error_type_key, '')
+                        batch_error_type_key, '')
                     batch[i][api_column_dict["error_raw"]] = str(error)
         except api_exceptions as e:
             logging.warning(str(e))
             module = str(inspect.getmodule(e).__name__)
             error_name = str(type(e).__qualname__)
             for i in range(len(batch)):
+                batch[i][api_column_dict["response"]] = ''
                 batch[i][api_column_dict["error_message"]] = str(e)
                 batch[i][api_column_dict["error_type"]] = ".".join(
                     [module, error_name])
@@ -209,6 +210,7 @@ def convert_api_results_to_df(
     input_df: pd.DataFrame,
     api_results: List[Dict],
     api_column_dict: Dict,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
     verbose: bool = False
 ) -> pd.DataFrame:
     """
@@ -216,18 +218,28 @@ def convert_api_results_to_df(
     Combine API results (list of dict) with input dataframe,
     and convert it to a dataframe.
     """
-    if not verbose:
-        del api_column_dict["error_raw"]
+    if error_handling == ErrorHandlingEnum.fail:
+        columns_to_exclude = [
+            v for k, v in api_column_dict.items() if "error" in k]
+    else:
+        if not verbose:
+            columns_to_exclude = [api_column_dict["error_raw"]]
     output_schema = {
         **{v: str for v in api_column_dict.values()},
         **dict(input_df.dtypes)}
+    output_schema = {
+        k: v for k, v in output_schema.items()
+        if k not in columns_to_exclude}
     record_list = [
         {col: result.get(col) for col in output_schema.keys()}
         for result in api_results]
-    column_list = list(input_df.columns) + list(api_column_dict.values())
+    api_column_list = [
+        c for c in list(api_column_dict.values())
+        if c not in columns_to_exclude]
+    output_column_list = list(input_df.columns) + api_column_list
     output_df = pd.DataFrame.from_records(record_list) \
         .astype(output_schema) \
-        .reindex(columns=column_list)
+        .reindex(columns=output_column_list)
     assert len(output_df.index) == len(input_df.index)
     return(output_df)
 
@@ -280,5 +292,5 @@ def api_parallelizer(
     if api_support_batch:
         api_results = flatten(api_results)
     output_df = convert_api_results_to_df(
-        input_df, api_results, api_column_dict, verbose)
+        input_df, api_results, api_column_dict, error_handling, verbose)
     return output_df
