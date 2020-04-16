@@ -5,16 +5,15 @@ from google.cloud import language
 from google.oauth2 import service_account
 from typing import AnyStr, Dict, Union
 
-from api_calling_utils import (
-    ErrorHandlingEnum, generate_unique, safe_json_loads
-)
+from api_calling_utils import generate_unique, safe_json_loads
+from param_enums import ErrorHandlingEnum, OutputFormatEnum
 
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
 
 DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
-ENCODING_TYPE = language.enums.EncodingType.UTF32
+ENCODING_TYPE = language.enums.EncodingType.UTF8
 
 NAMED_ENTITY_TYPES = [
     'UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
@@ -52,9 +51,9 @@ def get_client(gcp_service_account_key=None):
 def format_named_entity_recognition(
     row: Dict,
     response_column: AnyStr,
-    output_format: AnyStr = "multiple_columns",
+    output_format: OutputFormatEnum = OutputFormatEnum.multiple_columns,
     column_prefix: AnyStr = "ner_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
 ) -> Dict:
     """
     Format the API response for entity recognition to:
@@ -85,7 +84,7 @@ def format_sentiment_analysis(
     response_column: AnyStr,
     sentiment_scale: AnyStr = "ternary",
     column_prefix: AnyStr = "sentiment_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
 ) -> Dict:
     """
     Format the API response for sentiment analysis to:
@@ -156,10 +155,10 @@ def scale_sentiment_score(
 def format_text_classification(
     row: Dict,
     response_column: AnyStr,
-    output_format: AnyStr = "multiple_columns",
+    output_format: OutputFormatEnum = OutputFormatEnum.multiple_columns,
     num_categories: int = 3,
     column_prefix: AnyStr = "classification_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
 ) -> Dict:
     """
     Format the API response for text classification to:

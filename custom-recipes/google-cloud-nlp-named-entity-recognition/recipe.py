@@ -7,9 +7,9 @@ from google.cloud import language
 from google.protobuf.json_format import MessageToJson
 
 import dataiku
-from api_calling_utils import (
-    ErrorHandlingEnum, initialize_api_column_names, api_parallelizer
-)
+from api_calling_utils import initialize_api_column_names, api_parallelizer
+from param_enums import ErrorHandlingEnum, OutputFormatEnum
+
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role
 )
@@ -29,15 +29,14 @@ logging.basicConfig(
 )
 
 api_configuration_preset = get_recipe_config().get("api_configuration_preset")
-gcp_service_account_key = api_configuration_preset.get(
-    "gcp_service_account_key")
+service_account_key = api_configuration_preset.get("gcp_service_account_key")
 api_quota_rate_limit = api_configuration_preset.get("api_quota_rate_limit")
 api_quota_period = api_configuration_preset.get("api_quota_period")
 parallel_workers = api_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
-output_format = get_recipe_config().get('output_format')
-entity_sentiment = get_recipe_config().get('entity_sentiment')
+output_format = OutputFormatEnum[get_recipe_config().get('output_format')]
+entity_sentiment = get_recipe_config().get('entity_sentiment', False)
 error_handling = ErrorHandlingEnum[get_recipe_config().get('error_handling')]
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
@@ -60,7 +59,7 @@ if text_column not in input_columns_names:
 # ==============================================================================
 
 input_df = input_dataset.get_dataframe()
-client = get_client(gcp_service_account_key)
+client = get_client(service_account_key)
 column_prefix = "ner_api"
 api_column_dict = initialize_api_column_names(input_df, column_prefix)
 

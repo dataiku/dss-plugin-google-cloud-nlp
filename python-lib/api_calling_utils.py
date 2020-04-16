@@ -4,7 +4,6 @@ import inspect
 import math
 import json
 
-from enum import Enum
 from collections import OrderedDict
 from typing import Callable, AnyStr, List, Tuple, Dict, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -13,14 +12,11 @@ import pandas as pd
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
 
+from param_enums import ErrorHandlingEnum
+
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
-
-
-class ErrorHandlingEnum(Enum):
-    LOG = "log"
-    RAISE = "raise"
 
 
 API_COLUMN_LIST = ["response", "error_message", "error_type", "error_raw"]
@@ -70,14 +66,14 @@ def generate_unique(
 
 def safe_json_loads(
     str_to_check: AnyStr,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
 ) -> Dict:
     """
     Wrap json.loads with an additional parameter to handle errors:
     - 'RAISE' to use json.loads, which fails on invalid data
     - 'LOG' to try json.loads and return an empty dict if data is invalid
     """
-    if error_handling == ErrorHandlingEnum.RAISE:
+    if error_handling == ErrorHandlingEnum.fail:
         output = json.loads(str_to_check)
     else:
         try:
@@ -93,20 +89,20 @@ def fail_or_warn_row(
     api_column_dict: Dict,
     row: Dict,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
     verbose: bool = False,
     **api_call_function_kwargs
-) -> Callable:
+) -> Dict:
     """
-    Wraps an API calling function to:
-    - ensure it has a 'row' parameter which is a dict (BATCH *not* supported)
-    - return the row with a 'raw_result' key containing the function result
+    Wraps a single-row API calling function to:
+    - ensure it has a 'row' parameter which is a dict (BATCH is *not* supported)
+    - return the row with a new 'response' key containing the function result
     - handles errors from the function with two methods:
-        * (RAISE) fail if there is an error
-        * (LOG - default) do not fail on API-related exceptions, just log it
-        and return the row with a new 'error' key
+        * (default) do not fail on API-related exceptions, just log it
+        and return the row with new error keys
+        * fail if there is an error and raise it
     """
-    if error_handling == ErrorHandlingEnum.RAISE:
+    if error_handling == ErrorHandlingEnum.fail:
         row[api_column_dict["response"]] = api_call_function(
             row=row, **api_call_function_kwargs)
         return row
@@ -121,14 +117,77 @@ def fail_or_warn_row(
             module = str(inspect.getmodule(e).__name__)
             error_name = str(type(e).__qualname__)
             row[api_column_dict["error_message"]] = str(e)
-            row[api_column_dict["error_type"]] = module + "." + error_name
+            row[api_column_dict["error_type"]] = ".".join([module, error_name])
             row[api_column_dict["error_raw"]] = str(e.args)
         return row
 
 
-def fail_or_warn_batch():
-    # TODO write it ;)
-    return None
+def fail_or_warn_batch(
+    api_call_function: Callable,
+    api_column_dict: Dict,
+    batch: List[Dict],
+    result_key: AnyStr,
+    error_key: AnyStr,
+    index_key: AnyStr,
+    error_message_key: AnyStr = None,
+    error_type_key: AnyStr = None,
+    api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
+    verbose: bool = False,
+    **api_call_function_kwargs
+) -> List[Dict]:
+    """
+    Wraps a batch API calling function to:
+    - ensure it has a 'batch' parameter which is a list of dict
+    - return the batch with a new 'response' key in each dict
+      containing the function result
+    - handles errors from the function with two methods:
+        * (default) do not fail on API-related exceptions, just log it
+        and return the batch with new error keys in each dict
+        * fail if there is an error and raise it
+    """
+    if error_handling == ErrorHandlingEnum.fail:
+        response = api_call_function(batch=batch, **api_call_function_kwargs)
+        results = response.get(result_key, [])
+        errors = response.get(error_key, [])
+        for i in range(len(batch)):
+            batch[i][api_column_dict["response"]] = ''
+            result = [r for r in results if r.get(index_key) == i][:1]
+            if len(result) > 0:
+                batch[i][api_column_dict["response"]] = result[0]
+            if len(errors) > 0:
+                raise Exception("API returned errors: " + str(errors))
+        return batch
+    else:
+        try:
+            response = api_call_function(
+                batch=batch, **api_call_function_kwargs)
+            results = response.get(result_key, [])
+            errors = response.get(error_key, [])
+            for i in range(len(batch)):
+                for k in api_column_dict.values():
+                    batch[i][k] = ''
+                result = [r for r in results if r[index_key] == i][:1]
+                error = [r for r in errors if r[index_key] == i][:1]
+                if len(result) > 0:
+                    batch[i][api_column_dict["response"]] = result[0]
+                if len(error) > 0:
+                    logging.warning(str(error))
+                    batch[i][api_column_dict["error_message"]] = error.get(
+                        error_message_key, '')
+                    batch[i][api_column_dict["error_type"]] = error.get(
+                        error_type_key, '')
+                    batch[i][api_column_dict["error_raw"]] = str(error)
+        except api_exceptions as e:
+            logging.warning(str(e))
+            module = str(inspect.getmodule(e).__name__)
+            error_name = str(type(e).__qualname__)
+            for i in range(len(batch)):
+                batch[i][api_column_dict["error_message"]] = str(e)
+                batch[i][api_column_dict["error_type"]] = ".".join(
+                    [module, error_name])
+                batch[i][api_column_dict["error_raw"]] = str(e.args)
+        return batch
 
 
 def initialize_api_column_names(
@@ -179,7 +238,7 @@ def api_parallelizer(
     parallel_workers: int = 5,
     api_support_batch: bool = False,
     batch_size: int = 10,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
     column_prefix: AnyStr = "api",
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     verbose: bool = False,
