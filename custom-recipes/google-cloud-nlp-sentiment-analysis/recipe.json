@@ -147,15 +147,16 @@
             "type": "SELECT",
             "selectChoices": [
                 {
-                    "value": "fail",
-                    "label": "Fail"
+                    "value": "log",
+                    "label": "Log"
                 },
                 {
-                    "value": "warn",
-                    "label": "Warn"
+                    "value": "fail",
+                    "label": "Fail"
                 }
             ],
-            "defaultValue": "warn",
+            "description": "Log API errors to the output or fail with an exception",
+            "defaultValue": "log",
             "mandatory": true
         }
     ],

@@ -60,7 +60,7 @@ if text_column not in input_columns_names:
 input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
 column_prefix = "ner_api"
-api_column_dict = initialize_api_column_names(input_df, column_prefix)
+api_column_names = initialize_api_column_names(input_df, column_prefix)
 
 
 @retry((RateLimitException, OSError), delay=api_quota_period, tries=5)
@@ -92,7 +92,7 @@ output_df = api_parallelizer(
 
 output_df = output_df.apply(
     func=format_named_entity_recognition, axis=1,
-    response_column=api_column_dict["response"], output_format=output_format,
+    response_column=api_column_names.response, output_format=output_format,
     error_handling=error_handling, column_prefix=column_prefix)
 
 output_dataset.write_with_schema(output_df)
