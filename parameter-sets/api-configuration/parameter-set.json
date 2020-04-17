@@ -7,7 +7,7 @@
     "defaultDefinableInline": false,
     "params": [
         {
-            "name": "separator1",
+            "name": "separator_authentification",
             "label": "Authentication",
             "type": "SEPARATOR",
             "description": "Please refer to the GCP documentation: https://cloud.google.com/iam/docs/creating-managing-service-account-keys."
@@ -20,7 +20,7 @@
             "mandatory": false
         },
         {
-            "name": "separator2",
+            "name": "separator_api_quota",
             "label": "API quota",
             "type": "SEPARATOR"
         },
@@ -43,7 +43,7 @@
             "minI": 1
         },
         {
-            "name": "separator3",
+            "name": "separator_performance",
             "label": "Performance tuning",
             "type": "SEPARATOR"
         },

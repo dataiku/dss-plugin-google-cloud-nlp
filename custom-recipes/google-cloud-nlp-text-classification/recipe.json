@@ -68,15 +68,15 @@
             "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "single_column",
+                    "value": "SINGLE_COLUMN",
                     "label": "Single JSON column"
                 },
                 {
-                    "value": "multiple_columns",
+                    "value": "MULTIPLE_COLUMNS",
                     "label": "Multiple columns by category"
                 }
             ],
-            "defaultValue": "multiple_columns"
+            "defaultValue": "MULTIPLE_COLUMNS"
         },
         {
             "name": "num_categories",
@@ -107,16 +107,16 @@
             "type": "SELECT",
             "selectChoices": [
                 {
-                    "value": "log",
+                    "value": "LOG",
                     "label": "Log"
                 },
                 {
-                    "value": "fail",
+                    "value": "FAIL",
                     "label": "Fail"
                 }
             ],
             "description": "Log API errors to the output or fail with an exception",
-            "defaultValue": "log",
+            "defaultValue": "LOG",
             "mandatory": true
         }
     ],

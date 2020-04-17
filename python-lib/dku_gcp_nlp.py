@@ -15,11 +15,7 @@ from param_enums import ErrorHandlingEnum, OutputFormatEnum
 DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 ENCODING_TYPE = language.enums.EncodingType.UTF8
 
-NAMED_ENTITY_TYPES = [
-    'UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
-    'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER',
-    'PHONE_NUMBER', 'ADDRESS', 'DATE', 'NUMBER', 'PRICE'
-]
+DEFAULT_AXIS_NUMBER = 1
 
 # ==============================================================================
 # FUNCTION DEFINITION
@@ -51,9 +47,9 @@ def get_client(gcp_service_account_key=None):
 def format_named_entity_recognition(
     row: Dict,
     response_column: AnyStr,
-    output_format: OutputFormatEnum = OutputFormatEnum.multiple_columns,
+    output_format: OutputFormatEnum = OutputFormatEnum.MULTIPLE_COLUMNS,
     column_prefix: AnyStr = "ner_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for entity recognition to:
@@ -68,7 +64,9 @@ def format_named_entity_recognition(
         row[entity_column] = response.get("entities", '')
     else:
         entities = response.get("entities", [])
-        for n in NAMED_ENTITY_TYPES:
+        available_entity_types = [
+            n for n, m in language.enums.Entity.Type.__members__.items()]
+        for n in available_entity_types:
             entity_type_column = generate_unique(
                 "entity_type_" + n.lower(), row.keys(), column_prefix)
             row[entity_type_column] = [
@@ -84,7 +82,7 @@ def format_sentiment_analysis(
     response_column: AnyStr,
     sentiment_scale: AnyStr = "ternary",
     column_prefix: AnyStr = "sentiment_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for sentiment analysis to:
@@ -155,10 +153,10 @@ def scale_sentiment_score(
 def format_text_classification(
     row: Dict,
     response_column: AnyStr,
-    output_format: OutputFormatEnum = OutputFormatEnum.multiple_columns,
+    output_format: OutputFormatEnum = OutputFormatEnum.MULTIPLE_COLUMNS,
     num_categories: int = 3,
     column_prefix: AnyStr = "classification_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Format the API response for text classification to:

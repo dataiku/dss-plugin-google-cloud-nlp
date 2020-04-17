@@ -14,7 +14,7 @@ from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role
 )
 from dku_gcp_nlp import (
-    DOCUMENT_TYPE, ENCODING_TYPE,
+    DOCUMENT_TYPE, ENCODING_TYPE, DEFAULT_AXIS_NUMBER,
     get_client, format_named_entity_recognition
 )
 
@@ -91,7 +91,7 @@ output_df = api_parallelizer(
 )
 
 output_df = output_df.apply(
-    func=format_named_entity_recognition, axis=1,
+    func=format_named_entity_recognition, axis=DEFAULT_AXIS_NUMBER,
     response_column=api_column_names.response, output_format=output_format,
     error_handling=error_handling, column_prefix=column_prefix)
 

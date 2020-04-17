@@ -108,18 +108,18 @@
             "name": "output_format",
             "label": "Format",
             "type": "SELECT",
+            "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "single_column",
-                    "label": "Single JSON column "
+                    "value": "SINGLE_COLUMN",
+                    "label": "Single JSON column"
                 },
                 {
-                    "value": "multiple_columns",
+                    "value": "MULTIPLE_COLUMNS",
                     "label": "Multiple columns by entity type"
                 }
             ],
-            "defaultValue": "multiple_columns",
-            "mandatory": true
+            "defaultValue": "MULTIPLE_COLUMNS"
         },
         {
             "name": "entity_sentiment",
@@ -146,16 +146,16 @@
             "type": "SELECT",
             "selectChoices": [
                 {
-                    "value": "log",
+                    "value": "LOG",
                     "label": "Log"
                 },
                 {
-                    "value": "fail",
+                    "value": "FAIL",
                     "label": "Fail"
                 }
             ],
             "description": "Log API errors to the output or fail with an exception",
-            "defaultValue": "log",
+            "defaultValue": "LOG",
             "mandatory": true
         }
     ],

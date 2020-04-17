@@ -20,6 +20,10 @@ from param_enums import ErrorHandlingEnum
 
 API_COLUMN_NAMES = ["response", "error_message", "error_type", "error_raw"]
 ApiColumnNameTuple = namedtuple("ApiColumnNameTuple", API_COLUMN_NAMES)
+COLUMN_PREFIX = "api"
+
+PARALLEL_WORKERS = 4
+BATCH_SIZE = 10
 
 API_EXCEPTIONS = Exception
 try:
@@ -47,7 +51,7 @@ except ImportError:
 def generate_unique(
     name: AnyStr,
     existing_names: List,
-    prefix: AnyStr = None
+    prefix: AnyStr = COLUMN_PREFIX
 ) -> AnyStr:
     """
     Generate a unique name among existing ones by suffixing a number.
@@ -66,7 +70,7 @@ def generate_unique(
 
 def initialize_api_column_names(
     existing_names: List[AnyStr],
-    column_prefix: AnyStr = "api"
+    column_prefix: AnyStr = COLUMN_PREFIX
 ) -> NamedTuple:
     """
     Helper function to the "api_parallelizer" main function.
@@ -81,14 +85,14 @@ def initialize_api_column_names(
 
 def safe_json_loads(
     str_to_check: AnyStr,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
     Wrap json.loads with an additional parameter to handle errors:
-    - 'RAISE' to use json.loads, which fails on invalid data
+    - 'FAIL' to use json.loads, which fails on invalid data
     - 'LOG' to try json.loads and return an empty dict if data is invalid
     """
-    if error_handling == ErrorHandlingEnum.fail:
+    if error_handling == ErrorHandlingEnum.FAIL:
         output = json.loads(str_to_check)
     else:
         try:
@@ -104,7 +108,7 @@ def fail_or_warn_row(
     api_column_names: NamedTuple,
     row: Dict,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     verbose: bool = False,
     **api_call_function_kwargs
 ) -> Dict:
@@ -117,7 +121,7 @@ def fail_or_warn_row(
         and return the row with new error keys
         * fail if there is an error and raise it
     """
-    if error_handling == ErrorHandlingEnum.fail:
+    if error_handling == ErrorHandlingEnum.FAIL:
         row[api_column_names.response] = api_call_function(
             row=row, **api_call_function_kwargs)
         return row
@@ -147,7 +151,7 @@ def fail_or_warn_batch(
     batch_error_message_key: AnyStr = None,
     batch_error_type_key: AnyStr = None,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     verbose: bool = False,
     **api_call_function_kwargs
 ) -> List[Dict]:
@@ -161,7 +165,7 @@ def fail_or_warn_batch(
         and return the batch with new error keys in each dict
         * fail if there is an error and raise it
     """
-    if error_handling == ErrorHandlingEnum.fail:
+    if error_handling == ErrorHandlingEnum.FAIL:
         response = api_call_function(batch=batch, **api_call_function_kwargs)
         results = response.get(batch_result_key, [])
         errors = response.get(batch_error_key, [])
@@ -210,7 +214,7 @@ def convert_api_results_to_df(
     input_df: pd.DataFrame,
     api_results: List[Dict],
     api_column_names: NamedTuple,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     verbose: bool = False
 ) -> pd.DataFrame:
     """
@@ -218,7 +222,7 @@ def convert_api_results_to_df(
     Combine API results (list of dict) with input dataframe,
     and convert it to a dataframe.
     """
-    if error_handling == ErrorHandlingEnum.fail:
+    if error_handling == ErrorHandlingEnum.FAIL:
         columns_to_exclude = [
             v for k, v in api_column_names._asdict().items() if "error" in k]
     else:
@@ -245,11 +249,11 @@ def convert_api_results_to_df(
 def api_parallelizer(
     input_df: pd.DataFrame,
     api_call_function: Callable,
-    parallel_workers: int = 5,
+    parallel_workers: int = PARALLEL_WORKERS,
     api_support_batch: bool = False,
-    batch_size: int = 10,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.log,
-    column_prefix: AnyStr = "api",
+    batch_size: int = BATCH_SIZE,
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
+    column_prefix: AnyStr = COLUMN_PREFIX,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     verbose: bool = False,
     **api_call_function_kwargs

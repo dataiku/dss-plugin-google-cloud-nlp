@@ -2,10 +2,10 @@ from enum import Enum
 
 
 class ErrorHandlingEnum(Enum):
-    log = "Log"
-    fail = "Fail"
+    LOG = "Log"
+    FAIL = "Fail"
 
 
 class OutputFormatEnum(Enum):
-    single_column = "Single JSON column"
-    multiple_columns = "Multiple columns"
+    SINGLE_COLUMN = "Single JSON column"
+    MULTIPLE_COLUMNS = "Multiple columns"
