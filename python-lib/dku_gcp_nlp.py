@@ -176,7 +176,7 @@ def format_text_classification(
             category_column = generate_unique(
                 "category_" + str(n), row.keys(), column_prefix)
             confidence_column = generate_unique(
-                "category_" + str(n) + "_confidence", row.keys(), 
+                "category_" + str(n) + "_confidence", row.keys(),
                 column_prefix)
             if len(categories) > n:
                 row[category_column] = categories[n].get("name", '')
