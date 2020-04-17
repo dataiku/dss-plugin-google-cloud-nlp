@@ -28,7 +28,7 @@
     ],
     "params": [
         {
-            "name": "separator1",
+            "name": "separator_input",
             "label": "Input Parameters",
             "type": "SEPARATOR"
         },
@@ -57,7 +57,7 @@
             "description": "Only supported language"
         },
         {
-            "name": "separator2",
+            "name": "separator_output",
             "label": "Output Parameters",
             "type": "SEPARATOR"
         },
@@ -90,7 +90,7 @@
             "visibilityCondition": "model.output_format == 'multiple_columns'"
         },
         {
-            "name": "separator3",
+            "name": "separator_configuration",
             "label": "Configuration",
             "type": "SEPARATOR"
         },

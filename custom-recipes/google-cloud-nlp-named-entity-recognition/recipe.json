@@ -28,7 +28,7 @@
     ],
     "params": [
         {
-            "name": "separator1",
+            "name": "separator_input",
             "label": "Input Parameters",
             "type": "SEPARATOR"
         },
@@ -100,7 +100,7 @@
             "defaultValue": "auto"
         },
         {
-            "name": "separator2",
+            "name": "separator_output",
             "label": "Output Parameters",
             "type": "SEPARATOR"
         },
@@ -129,7 +129,7 @@
             "defaultValue": false
         },
         {
-            "name": "separator3",
+            "name": "separator_configuration",
             "label": "Configuration",
             "type": "SEPARATOR"
         },
