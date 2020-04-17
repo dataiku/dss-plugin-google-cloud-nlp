@@ -87,7 +87,7 @@
             "defaultValue": 3,
             "minI": 1,
             "maxI": 100,
-            "visibilityCondition": "model.output_format == 'multiple_columns'"
+            "visibilityCondition": "model.output_format == 'MULTIPLE_COLUMNS'"
         },
         {
             "name": "separator_configuration",
