@@ -173,7 +173,7 @@ def fail_or_warn_batch(
             batch[i][api_column_names.response] = ''
             result = [r for r in results if r.get(batch_index_key) == i]
             if len(result) > 0:
-                batch[i][api_column_names.response] = result[0]
+                batch[i][api_column_names.response] = json.dumps(result[0])
             if len(errors) > 0:
                 raise Exception("API returned errors: " + str(errors))
         return batch
@@ -189,7 +189,7 @@ def fail_or_warn_batch(
                 result = [r for r in results if r.get(batch_index_key) == i]
                 error = [r for r in errors if r.get(batch_index_key) == i]
                 if len(result) > 0:
-                    batch[i][api_column_names.response] = result[0]
+                    batch[i][api_column_names.response] = json.dumps(result[0])
                 if len(error) > 0:
                     logging.warning(str(error))
                     batch[i][api_column_names.error_message] = error.get(
