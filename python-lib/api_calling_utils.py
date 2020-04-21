@@ -111,6 +111,9 @@ def safe_json_loads(
 
 
 def validate_column_input(column_name: AnyStr, column_list: List[AnyStr]):
+    """
+    Validate that user input for column parameter is valid.
+    """
     if column_name is None or len(column_name) == 0:
         raise ValueError(
             "You must specify the '{}' column.".format(column_name))
