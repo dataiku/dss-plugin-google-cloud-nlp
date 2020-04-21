@@ -58,7 +58,7 @@ def call_api_named_entity_recognition(
     row, text_column, text_language, entity_sentiment
 ):
     text = row[text_column]
-    if not isinstance(text, str) or text.strip() == '':
+    if not isinstance(text, str) or str(text).strip() == '':
         return('')
     else:
         document = language.types.Document(

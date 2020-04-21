@@ -55,7 +55,7 @@ api_column_names = build_unique_column_names(input_df, column_prefix)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
 def call_api_sentiment_analysis(row, text_column, text_language=None):
     text = row[text_column]
-    if not isinstance(text, str) or text.strip() == '':
+    if not isinstance(text, str) or str(text).strip() == '':
         return('')
     else:
         document = language.types.Document(
