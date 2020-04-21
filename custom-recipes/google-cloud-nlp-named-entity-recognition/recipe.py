@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from ratelimit import limits, RateLimitException
 from retry import retry
 from google.cloud import language
@@ -8,7 +9,7 @@ import dataiku
 
 from param_enums import ErrorHandlingEnum, OutputFormatEnum
 from api_calling_utils import (
-    initialize_api_column_names, api_parallelizer, validate_column_input)
+    build_unique_column_names, api_parallelizer, validate_column_input)
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from dku_gcp_nlp import (
@@ -43,7 +44,7 @@ validate_column_input(text_column, input_columns_names)
 input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
 column_prefix = "ner_api"
-api_column_names = initialize_api_column_names(input_df, column_prefix)
+api_column_names = build_unique_column_names(input_df, column_prefix)
 
 
 # ==============================================================================
@@ -78,9 +79,11 @@ output_df = api_parallelizer(
     text_language=text_language, entity_sentiment=entity_sentiment
 )
 
+logging.info("Formatting API results...")
 output_df = output_df.apply(
     func=format_named_entity_recognition, axis=DEFAULT_AXIS_NUMBER,
     response_column=api_column_names.response, output_format=output_format,
     error_handling=error_handling, column_prefix=column_prefix)
+logging.info("Formatting API results: Done.")
 
 output_dataset.write_with_schema(output_df)

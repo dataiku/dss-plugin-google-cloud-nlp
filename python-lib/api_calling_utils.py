@@ -68,14 +68,14 @@ def generate_unique(
         new_name = prefix + "_" + name
     else:
         new_name = name
-    for j in range(1, 1000):
+    for j in range(1, 1001):
         if new_name not in existing_names:
             return new_name
         new_name = name + "_{}".format(j)
     raise Exception("Failed to generated a unique name")
 
 
-def initialize_api_column_names(
+def build_unique_column_names(
     existing_names: List[AnyStr],
     column_prefix: AnyStr = COLUMN_PREFIX
 ) -> NamedTuple:
@@ -92,11 +92,12 @@ def initialize_api_column_names(
 
 def safe_json_loads(
     str_to_check: AnyStr,
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
+    verbose=False
 ) -> Dict:
     """
     Wrap json.loads with an additional parameter to handle errors:
-    - 'FAIL' to use json.loads, which fails on invalid data
+    - 'FAIL' to use json.loads, which throws an exception on invalid data
     - 'LOG' to try json.loads and return an empty dict if data is invalid
     """
     if error_handling == ErrorHandlingEnum.FAIL:
@@ -105,7 +106,8 @@ def safe_json_loads(
         try:
             output = json.loads(str_to_check)
         except (TypeError, ValueError):
-            logging.warning("Invalid JSON: '" + str(str_to_check) + "'")
+            if verbose:
+                logging.warning("Invalid JSON: '" + str(str_to_check) + "'")
             output = {}
     return output
 
@@ -123,7 +125,7 @@ def validate_column_input(column_name: AnyStr, column_list: List[AnyStr]):
                 column_name))
 
 
-def fail_or_warn_row(
+def api_call_single_row(
     api_call_function: Callable,
     api_column_names: NamedTuple,
     row: Dict,
@@ -134,7 +136,8 @@ def fail_or_warn_row(
 ) -> Dict:
     """
     Wraps a single-row API calling function to:
-    - ensure it has a 'row' parameter which is a dict (BATCH is *not* supported)
+    - ensure it has a 'row' parameter which is a dict
+      (for batches of rows, use the api_call_batch function below)
     - return the row with a new 'response' key containing the function result
     - handles errors from the function with two methods:
         * (default) do not fail on API-related exceptions, just log it
@@ -161,7 +164,7 @@ def fail_or_warn_row(
         return row
 
 
-def fail_or_warn_batch(
+def api_call_batch(
     api_call_function: Callable,
     api_column_names: NamedTuple,
     batch: List[Dict],
@@ -246,6 +249,7 @@ def convert_api_results_to_df(
         columns_to_exclude = [
             v for k, v in api_column_names._asdict().items() if "error" in k]
     else:
+        columns_to_exclude = []
         if not verbose:
             columns_to_exclude = [api_column_names.error_raw]
     output_schema = {
@@ -285,13 +289,15 @@ def api_parallelizer(
     - (default) sending multiple concurrent threads
     - if the API supports it, sending batches of row
     """
-    logging.info("Calling the API in parallel...")
     df_iterator = (i[1].to_dict() for i in input_df.iterrows())
     len_iterator = len(input_df.index)
+    log_msg = "Calling remote API endpoint with {} rows".format(len_iterator)
     if api_support_batch:
+        log_msg += ", chunked by {}".format(batch_size)
         df_iterator = chunked(df_iterator, batch_size)
         len_iterator = math.ceil(len_iterator / batch_size)
-    api_column_names = initialize_api_column_names(
+    logging.info(log_msg)
+    api_column_names = build_unique_column_names(
         input_df.columns, column_prefix)
     pool_kwargs = api_call_function_kwargs.copy()
     more_kwargs = [
@@ -305,11 +311,11 @@ def api_parallelizer(
     with ThreadPoolExecutor(max_workers=parallel_workers) as pool:
         if api_support_batch:
             futures = [
-                pool.submit(fail_or_warn_batch, batch=batch, **pool_kwargs)
+                pool.submit(api_call_batch, batch=batch, **pool_kwargs)
                 for batch in df_iterator]
         else:
             futures = [
-                pool.submit(fail_or_warn_row, row=row, **pool_kwargs)
+                pool.submit(api_call_single_row, row=row, **pool_kwargs)
                 for row in df_iterator]
         for f in tqdm_auto(as_completed(futures), total=len_iterator):
             api_results.append(f.result())
@@ -317,5 +323,9 @@ def api_parallelizer(
         api_results = flatten(api_results)
     output_df = convert_api_results_to_df(
         input_df, api_results, api_column_names, error_handling, verbose)
-    logging.info("Calling the API: Done.")
+    num_api_error = sum(output_df[api_column_names.response] == "")
+    num_api_success = len(input_df.index) - num_api_error
+    logging.info(
+        "Remote API call results: {} rows succeeded, {} rows failed.".format(
+            num_api_success, num_api_error))
     return output_df

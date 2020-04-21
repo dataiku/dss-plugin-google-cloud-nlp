@@ -99,8 +99,6 @@ def format_sentiment_analysis(
     sentiment_magnitude_column = generate_unique(
         "magnitude", row.keys(), column_prefix)
     sentiment = response.get("documentSentiment", {})
-    if sentiment == {}:
-        logging.warning("API did not return sentiment")
     sentiment_score = sentiment.get("score")
     magnitude_score = sentiment.get("magnitude")
     if sentiment_score is not None:
