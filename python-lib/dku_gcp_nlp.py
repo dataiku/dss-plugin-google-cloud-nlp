@@ -59,7 +59,7 @@ def format_named_entity_recognition(
     """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
-    if output_format == "single_column":
+    if output_format == OutputFormatEnum.SINGLE_COLUMN:
         entity_column = generate_unique("entities", row.keys(), column_prefix)
         row[entity_column] = response.get("entities", '')
     else:
@@ -166,7 +166,7 @@ def format_text_classification(
     """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
-    if output_format == "single_column":
+    if output_format == OutputFormatEnum.SINGLE_COLUMN:
         classification_column = generate_unique(
             "categories", row.keys(), column_prefix)
         row[classification_column] = response.get("categories", '')
