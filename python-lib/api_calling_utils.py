@@ -40,6 +40,11 @@ try:
     from boto3.exceptions import Boto3Error
     from botocore.exceptions import BotoCoreError, ClientError
     API_EXCEPTIONS = (Boto3Error, BotoCoreError, ClientError)
+    BATCH_RESULT_KEY = "ResultList"
+    BATCH_ERROR_KEY = "ErrorList"
+    BATCH_INDEX_KEY = "Index"
+    BATCH_ERROR_MESSAGE_KEY = "ErrorMessage"
+    BATCH_ERROR_TYPE_KEY = "ErrorCode"
 except ImportError:
     pass
 try:
