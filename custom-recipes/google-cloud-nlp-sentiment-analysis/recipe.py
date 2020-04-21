@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
-
 from ratelimit import limits, RateLimitException
 from retry import retry
 from google.cloud import language
@@ -22,12 +20,7 @@ from dku_gcp_nlp import (
 # SETUP
 # ==============================================================================
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='[Google Cloud NLP plugin] %(levelname)s - %(message)s'
-)
-
-api_configuration_preset = get_recipe_config().get("api_configuration_preset", {})
+api_configuration_preset = get_recipe_config().get("api_configuration_preset")
 service_account_key = api_configuration_preset.get("gcp_service_account_key")
 api_quota_rate_limit = api_configuration_preset.get("api_quota_rate_limit")
 api_quota_period = api_configuration_preset.get("api_quota_period")
@@ -46,16 +39,15 @@ output_dataset_name = get_output_names_for_role("output_dataset")[0]
 output_dataset = dataiku.Dataset(output_dataset_name)
 
 validate_column_input(text_column, input_columns_names)
+input_df = input_dataset.get_dataframe()
+client = get_client(service_account_key)
+column_prefix = "sentiment_api"
+api_column_names = initialize_api_column_names(input_df, column_prefix)
 
 
 # ==============================================================================
 # RUN
 # ==============================================================================
-
-input_df = input_dataset.get_dataframe()
-client = get_client(service_account_key)
-column_prefix = "sentiment_api"
-api_column_names = initialize_api_column_names(input_df, column_prefix)
 
 
 @retry((RateLimitException, OSError), delay=api_quota_period, tries=5)

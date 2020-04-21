@@ -285,6 +285,7 @@ def api_parallelizer(
     - (default) sending multiple concurrent threads
     - if the API supports it, sending batches of row
     """
+    logging.info("Calling the API in parallel...")
     df_iterator = (i[1].to_dict() for i in input_df.iterrows())
     len_iterator = len(input_df.index)
     if api_support_batch:
@@ -316,4 +317,5 @@ def api_parallelizer(
         api_results = flatten(api_results)
     output_df = convert_api_results_to_df(
         input_df, api_results, api_column_names, error_handling, verbose)
+    logging.info("Calling the API: Done.")
     return output_df
