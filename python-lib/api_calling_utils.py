@@ -110,6 +110,16 @@ def safe_json_loads(
     return output
 
 
+def validate_column_input(column_name: AnyStr, column_list: List[AnyStr]):
+    if column_name is None or len(column_name) == 0:
+        raise ValueError(
+            "You must specify the '{}' column.".format(column_name))
+    if column_name not in column_list:
+        raise ValueError(
+            "Column '{}' is not present in the input dataset.".format(
+                column_name))
+
+
 def fail_or_warn_row(
     api_call_function: Callable,
     api_column_names: NamedTuple,

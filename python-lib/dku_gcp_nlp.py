@@ -171,7 +171,9 @@ def format_text_classification(
             "categories", row.keys(), column_prefix)
         row[classification_column] = response.get("categories", '')
     else:
-        categories = response.get("categories", [])
+        categories = sorted(
+            response.get("categories", []), key=lambda x: x.get("confidence"),
+            reverse=True)
         for n in range(num_categories):
             category_column = generate_unique(
                 "category_" + str(n), row.keys(), column_prefix)

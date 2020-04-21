@@ -7,16 +7,15 @@ from google.cloud import language
 from google.protobuf.json_format import MessageToJson
 
 import dataiku
-from api_calling_utils import initialize_api_column_names, api_parallelizer
-from param_enums import ErrorHandlingEnum
 
+from param_enums import ErrorHandlingEnum
+from api_calling_utils import (
+    initialize_api_column_names, api_parallelizer, validate_column_input)
 from dataiku.customrecipe import (
-    get_recipe_config, get_input_names_for_role, get_output_names_for_role
-)
+    get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from dku_gcp_nlp import (
     DOCUMENT_TYPE, ENCODING_TYPE, DEFAULT_AXIS_NUMBER,
-    get_client, format_sentiment_analysis
-)
+    get_client, format_sentiment_analysis)
 
 
 # ==============================================================================
@@ -46,12 +45,8 @@ input_columns_names = [col['name'] for col in input_schema]
 output_dataset_name = get_output_names_for_role("output_dataset")[0]
 output_dataset = dataiku.Dataset(output_dataset_name)
 
-if text_column is None or len(text_column) == 0:
-    raise ValueError("You must specify the input text column.")
-if text_column not in input_columns_names:
-    raise ValueError(
-        "Column '{}' is not present in the input dataset.".format(text_column)
-    )
+validate_column_input(text_column, input_columns_names)
+
 
 # ==============================================================================
 # RUN
