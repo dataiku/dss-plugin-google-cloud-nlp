@@ -2,11 +2,13 @@
 import json
 import logging
 from google.cloud import language
+from google.api_core.exceptions import GoogleAPICallError, RetryError
 from google.oauth2 import service_account
 from typing import AnyStr, Dict, Union
 
-from api_calling_utils import generate_unique, safe_json_loads
-from param_enums import ErrorHandlingEnum, OutputFormatEnum
+from io_utils import (
+    generate_unique, safe_json_loads, ErrorHandlingEnum, OutputFormatEnum)
+
 
 # ==============================================================================
 # CONSTANT DEFINITION
@@ -15,7 +17,16 @@ from param_enums import ErrorHandlingEnum, OutputFormatEnum
 DOCUMENT_TYPE = language.enums.Document.Type.PLAIN_TEXT
 ENCODING_TYPE = language.enums.EncodingType.UTF8
 
+API_EXCEPTIONS = (GoogleAPICallError, RetryError)
+
+BATCH_RESULT_KEY = "ResultList"
+BATCH_ERROR_KEY = "ErrorList"
+BATCH_INDEX_KEY = "Index"
+BATCH_ERROR_MESSAGE_KEY = "ErrorMessage"
+BATCH_ERROR_TYPE_KEY = "ErrorCode"
+
 DEFAULT_AXIS_NUMBER = 1
+
 
 # ==============================================================================
 # FUNCTION DEFINITION

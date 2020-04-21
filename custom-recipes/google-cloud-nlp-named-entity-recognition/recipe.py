@@ -7,13 +7,14 @@ from google.protobuf.json_format import MessageToJson
 
 import dataiku
 
-from param_enums import ErrorHandlingEnum, OutputFormatEnum
-from api_calling_utils import (
-    build_unique_column_names, api_parallelizer, validate_column_input)
+from io_utils import (
+    ErrorHandlingEnum, OutputFormatEnum,
+    build_unique_column_names, validate_column_input)
+from api_calling_utils import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from dku_gcp_nlp import (
-    DOCUMENT_TYPE, ENCODING_TYPE, DEFAULT_AXIS_NUMBER,
+    DEFAULT_AXIS_NUMBER, DOCUMENT_TYPE, ENCODING_TYPE,
     get_client, format_named_entity_recognition)
 
 
