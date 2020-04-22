@@ -82,7 +82,7 @@ def format_named_entity_recognition(
             entity_type_column = generate_unique(
                 "entity_type_" + n.lower(), row.keys(), column_prefix)
             row[entity_type_column] = [
-                e for e in entities if e.get("type", '') == n
+                e.get("name") for e in entities if e.get("type", '') == n
             ]
             if len(row[entity_type_column]) == 0:
                 row[entity_type_column] = ''
