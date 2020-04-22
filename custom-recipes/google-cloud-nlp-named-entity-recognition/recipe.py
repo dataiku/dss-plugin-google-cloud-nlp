@@ -75,7 +75,7 @@ def call_api_named_entity_recognition(
 
 output_df = api_parallelizer(
     input_df=input_df, api_call_function=call_api_named_entity_recognition,
-    parallel_workers=parallel_workers,  error_handling=error_handling,
+    parallel_workers=parallel_workers, error_handling=error_handling,
     column_prefix=column_prefix, text_column=text_column,
     text_language=text_language, entity_sentiment=entity_sentiment
 )

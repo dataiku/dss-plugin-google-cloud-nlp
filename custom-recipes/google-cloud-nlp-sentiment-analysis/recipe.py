@@ -67,7 +67,7 @@ def call_api_sentiment_analysis(row, text_column, text_language=None):
 
 output_df = api_parallelizer(
     input_df=input_df, api_call_function=call_api_sentiment_analysis,
-    parallel_workers=parallel_workers,  error_handling=error_handling,
+    parallel_workers=parallel_workers, error_handling=error_handling,
     column_prefix=column_prefix, text_column=text_column,
     text_language=text_language)
 
