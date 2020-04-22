@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from typing import Dict, AnyStr
 from ratelimit import limits, RateLimitException
 from retry import retry
 from google.cloud import language
@@ -53,10 +54,12 @@ api_column_names = build_unique_column_names(input_df, column_prefix)
 
 @retry((RateLimitException, OSError), delay=api_quota_period, tries=5)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
-def call_api_sentiment_analysis(row, text_column, text_language=None):
+def call_api_sentiment_analysis(
+    row: Dict, text_column: AnyStr, text_language: AnyStr
+) -> AnyStr:
     text = row[text_column]
     if not isinstance(text, str) or str(text).strip() == '':
-        return('')
+        return ''
     else:
         document = language.types.Document(
             content=text, language=text_language, type=DOCUMENT_TYPE)

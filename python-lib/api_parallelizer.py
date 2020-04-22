@@ -50,15 +50,14 @@ def api_call_single_row(
         * fail if there is an error and raise it
     """
     if error_handling == ErrorHandlingEnum.FAIL:
-        row[api_column_names.response] = api_call_function(
-            row=row, **api_call_function_kwargs)
-        return row
+        response = api_call_function(row=row, **api_call_function_kwargs)
+        row[api_column_names.response] = response
     else:
         for k in api_column_names:
             row[k] = ''
         try:
-            row[api_column_names.response] = api_call_function(
-                row=row, **api_call_function_kwargs)
+            response = api_call_function(row=row, **api_call_function_kwargs)
+            row[api_column_names.response] = response
         except api_exceptions as e:
             logging.warning(str(e))
             module = str(inspect.getmodule(e).__name__)
@@ -66,7 +65,7 @@ def api_call_single_row(
             row[api_column_names.error_message] = str(e)
             row[api_column_names.error_type] = ".".join([module, error_name])
             row[api_column_names.error_raw] = str(e.args)
-        return row
+    return row
 
 
 def api_call_batch(
@@ -100,11 +99,11 @@ def api_call_batch(
         for i in range(len(batch)):
             batch[i][api_column_names.response] = ''
             result = [r for r in results if r.get(batch_index_key) == i]
-            if len(result) > 0:
+            if len(result) != 0:
+                # result must be json serializable
                 batch[i][api_column_names.response] = json.dumps(result[0])
-            if len(errors) > 0:
+            if len(errors) != 0:
                 raise Exception("API returned errors: " + str(errors))
-        return batch
     else:
         try:
             response = api_call_function(
@@ -116,9 +115,10 @@ def api_call_batch(
                     batch[i][k] = ''
                 result = [r for r in results if r.get(batch_index_key) == i]
                 error = [r for r in errors if r.get(batch_index_key) == i]
-                if len(result) > 0:
+                if len(result) != 0:
+                    # result must be json serializable
                     batch[i][api_column_names.response] = json.dumps(result[0])
-                if len(error) > 0:
+                if len(error) != 0:
                     logging.warning(str(error))
                     batch[i][api_column_names.error_message] = error.get(
                         batch_error_message_key, '')
@@ -135,7 +135,7 @@ def api_call_batch(
                 batch[i][api_column_names.error_type] = ".".join(
                     [module, error_name])
                 batch[i][api_column_names.error_raw] = str(e.args)
-        return batch
+    return batch
 
 
 def convert_api_results_to_df(

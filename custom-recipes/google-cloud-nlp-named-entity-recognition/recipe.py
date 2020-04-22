@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from typing import Dict, AnyStr
 from ratelimit import limits, RateLimitException
 from retry import retry
 from google.cloud import language
@@ -56,11 +57,12 @@ api_column_names = build_unique_column_names(input_df, column_prefix)
 @retry((RateLimitException, OSError), delay=api_quota_period, tries=5)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
 def call_api_named_entity_recognition(
-    row, text_column, text_language, entity_sentiment
-):
+    row: Dict, text_column: AnyStr, text_language: AnyStr,
+    entity_sentiment: bool
+) -> AnyStr:
     text = row[text_column]
     if not isinstance(text, str) or str(text).strip() == '':
-        return('')
+        return ''
     else:
         document = language.types.Document(
             content=text, language=text_language, type=DOCUMENT_TYPE)
@@ -77,8 +79,7 @@ output_df = api_parallelizer(
     input_df=input_df, api_call_function=call_api_named_entity_recognition,
     parallel_workers=parallel_workers, error_handling=error_handling,
     column_prefix=column_prefix, text_column=text_column,
-    text_language=text_language, entity_sentiment=entity_sentiment
-)
+    text_language=text_language, entity_sentiment=entity_sentiment)
 
 logging.info("Formatting API results...")
 output_df = output_df.apply(
