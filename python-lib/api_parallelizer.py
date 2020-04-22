@@ -23,7 +23,7 @@ from cloud_api import (
 
 PARALLEL_WORKERS = 4
 BATCH_SIZE = 10
-
+VERBOSE = False
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION
@@ -36,7 +36,7 @@ def api_call_single_row(
     row: Dict,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
-    verbose: bool = False,
+    verbose: bool = VERBOSE,
     **api_call_function_kwargs
 ) -> Dict:
     """
@@ -80,7 +80,7 @@ def api_call_batch(
     batch_error_type_key: AnyStr = BATCH_ERROR_TYPE_KEY,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
-    verbose: bool = False,
+    verbose: bool = VERBOSE,
     **api_call_function_kwargs
 ) -> List[Dict]:
     """
@@ -143,7 +143,7 @@ def convert_api_results_to_df(
     api_results: List[Dict],
     api_column_names: NamedTuple,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
-    verbose: bool = False
+    verbose: bool = VERBOSE
 ) -> pd.DataFrame:
     """
     Helper function to the "api_parallelizer" main function.
@@ -184,7 +184,7 @@ def api_parallelizer(
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     column_prefix: AnyStr = COLUMN_PREFIX,
     api_exceptions: Union[Exception, Tuple[Exception]] = API_EXCEPTIONS,
-    verbose: bool = False,
+    verbose: bool = VERBOSE,
     **api_call_function_kwargs
 ) -> pd.DataFrame:
     """
