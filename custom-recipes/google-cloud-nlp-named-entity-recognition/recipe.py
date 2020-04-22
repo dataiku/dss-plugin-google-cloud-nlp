@@ -7,14 +7,14 @@ from google.protobuf.json_format import MessageToJson
 
 import dataiku
 
-from io_utils import (
+from plugin_io_utils import (
     ErrorHandlingEnum, OutputFormatEnum,
     build_unique_column_names, validate_column_input)
-from api_calling_utils import api_parallelizer
+from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
-from dku_gcp_nlp import (
-    DEFAULT_AXIS_NUMBER, DOCUMENT_TYPE, ENCODING_TYPE,
+from cloud_api import (
+    DOCUMENT_TYPE, ENCODING_TYPE, APPLY_AXIS,
     get_client, format_named_entity_recognition)
 
 
@@ -82,7 +82,7 @@ output_df = api_parallelizer(
 
 logging.info("Formatting API results...")
 output_df = output_df.apply(
-    func=format_named_entity_recognition, axis=DEFAULT_AXIS_NUMBER,
+    func=format_named_entity_recognition, axis=APPLY_AXIS,
     response_column=api_column_names.response, output_format=output_format,
     error_handling=error_handling, column_prefix=column_prefix)
 logging.info("Formatting API results: Done.")

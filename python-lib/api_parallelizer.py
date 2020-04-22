@@ -11,11 +11,11 @@ import pandas as pd
 from more_itertools import chunked, flatten
 from tqdm.auto import tqdm as tqdm_auto
 
-from io_utils import (
+from plugin_io_utils import (
     COLUMN_PREFIX, ErrorHandlingEnum, build_unique_column_names)
-from dku_gcp_nlp import (
-    API_EXCEPTIONS, BATCH_RESULT_KEY, BATCH_ERROR_KEY, BATCH_INDEX_KEY,
-    BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY)
+from cloud_api import (
+    API_EXCEPTIONS, API_SUPPORT_BATCH, BATCH_RESULT_KEY, BATCH_ERROR_KEY,
+    BATCH_INDEX_KEY, BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY)
 
 # ==============================================================================
 # CONSTANT DEFINITION
@@ -179,7 +179,7 @@ def api_parallelizer(
     input_df: pd.DataFrame,
     api_call_function: Callable,
     parallel_workers: int = PARALLEL_WORKERS,
-    api_support_batch: bool = False,
+    api_support_batch: bool = API_SUPPORT_BATCH,
     batch_size: int = BATCH_SIZE,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     column_prefix: AnyStr = COLUMN_PREFIX,

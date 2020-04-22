@@ -6,7 +6,7 @@ from google.api_core.exceptions import GoogleAPICallError, RetryError
 from google.oauth2 import service_account
 from typing import AnyStr, Dict, Union
 
-from io_utils import (
+from plugin_io_utils import (
     generate_unique, safe_json_loads, ErrorHandlingEnum, OutputFormatEnum)
 
 
@@ -19,13 +19,14 @@ ENCODING_TYPE = language.enums.EncodingType.UTF8
 
 API_EXCEPTIONS = (GoogleAPICallError, RetryError)
 
-BATCH_RESULT_KEY = "ResultList"
-BATCH_ERROR_KEY = "ErrorList"
-BATCH_INDEX_KEY = "Index"
-BATCH_ERROR_MESSAGE_KEY = "ErrorMessage"
-BATCH_ERROR_TYPE_KEY = "ErrorCode"
+API_SUPPORT_BATCH = False
+BATCH_RESULT_KEY = None
+BATCH_ERROR_KEY = None
+BATCH_INDEX_KEY = None
+BATCH_ERROR_MESSAGE_KEY = None
+BATCH_ERROR_TYPE_KEY = None
 
-DEFAULT_AXIS_NUMBER = 1
+APPLY_AXIS = 1  # columns
 
 
 # ==============================================================================
