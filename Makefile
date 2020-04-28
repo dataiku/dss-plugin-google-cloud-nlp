@@ -37,7 +37,7 @@ plugin:
 
 publish: plugin
 	@echo "[START] Publishing archive to artifact repository..."
-	curl -H "Authorization: Bearer ${DKU_PLUGIN_DEVELOPER_TOKEN}>" -X PUT ${artifact_repo_target} -T dist/${archive_file_name}
+	@curl -H "Authorization: Bearer ${DKU_PLUGIN_DEVELOPER_TOKEN}>" -X PUT ${artifact_repo_target} -T dist/${archive_file_name}
 	@echo "[SUCCESS] Publishing archive to artifact repository: Done!"
 
 
