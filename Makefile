@@ -19,7 +19,7 @@ plugin_version=`cat plugin.json | python -c "import sys, json; print(json.load(s
 archive_file_name="dss-plugin_${plugin_id}_${plugin_version}.zip"
 # TODO check for case where DKU_PLUGIN_ARTIFACT_REPO_URL ends with /
 # TODO check that no variables contains /
-artifact_repo_target="${DKU_PLUGIN_ARTIFACT_REPO_URL}/${TARGET_DSS_VERSION}/${DKU_PLUGIN_DEVELOPER_ORG}/${plugin_id}/${plugin_version}/${archive_file_name}"
+artifact_repo_target="${DKU_PLUGIN_DEVELOPER_REPO_URL}/${TARGET_DSS_VERSION}/${DKU_PLUGIN_DEVELOPER_ORG}/${plugin_id}/${plugin_version}/${archive_file_name}"
 remote_url=`git config --get remote.origin.url`
 last_commit_id=`git rev-parse HEAD`
 
