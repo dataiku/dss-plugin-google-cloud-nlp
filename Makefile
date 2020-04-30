@@ -9,8 +9,8 @@ endif
 ifndef DKU_PLUGIN_DEVELOPER_TOKEN
 $(error the DKU_PLUGIN_DEVELOPER_TOKEN environment variable is not set)
 endif
-ifndef DKU_PLUGIN_ARTIFACT_REPO_URL
-$(error the DKU_PLUGIN_ARTIFACT_REPO_URL environment variable is not set)
+ifndef DKU_PLUGIN_DEVELOPER_REPO_URL
+$(error the DKU_PLUGIN_DEVELOPER_REPO_URL environment variable is not set)
 endif
 
 # evaluate additional variable
