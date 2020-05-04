@@ -68,6 +68,7 @@ def build_unique_column_names(
 def safe_json_loads(
     str_to_check: AnyStr,
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
+    verbose: bool = False
 ) -> Dict:
     """
     Wrap json.loads with an additional parameter to handle errors:
@@ -80,7 +81,8 @@ def safe_json_loads(
         try:
             output = json.loads(str_to_check)
         except (TypeError, ValueError):
-            logging.warning("Invalid JSON: '" + str(str_to_check) + "'")
+            if verbose:
+                logging.warning("Invalid JSON: '" + str(str_to_check) + "'")
             output = {}
     return output
 

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import pandas as pd
+
 from google.cloud import language
 from google.api_core.exceptions import GoogleAPICallError, RetryError
 from google.oauth2 import service_account
-from typing import AnyStr, Dict, Union
+from typing import AnyStr, Dict, Union, NamedTuple
 
 from plugin_io_utils import (
     generate_unique, safe_json_loads, ErrorHandlingEnum, OutputFormatEnum)
@@ -27,7 +29,7 @@ BATCH_ERROR_MESSAGE_KEY = None
 BATCH_ERROR_TYPE_KEY = None
 
 APPLY_AXIS = 1  # columns
-
+VERBOSE = False
 
 # ==============================================================================
 # FUNCTION DEFINITION
@@ -197,3 +199,22 @@ def format_text_classification(
                 row[category_column] = ''
                 row[confidence_column] = None
     return row
+
+
+def move_api_columns_to_end(
+    df: pd.DataFrame,
+    api_column_names: NamedTuple,
+    verbose: bool = VERBOSE
+) -> pd.DataFrame:
+    """
+    Move non-human readable API columns to the end of the dataframe
+    """
+    api_column_names_dict = api_column_names._asdict()
+    if not verbose:
+        api_column_names_dict.pop("error_raw", None)
+    api_column_names_list = [v for k, v in api_column_names_dict.items()]
+    cols = [
+        c for c in list(df.columns.values) if c not in api_column_names_list]
+    new_cols = cols + api_column_names_list
+    df = df.reindex(columns=new_cols)
+    return df

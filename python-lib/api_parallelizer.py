@@ -15,7 +15,7 @@ from plugin_io_utils import (
     COLUMN_PREFIX, ErrorHandlingEnum, build_unique_column_names)
 from cloud_api import (
     API_EXCEPTIONS, API_SUPPORT_BATCH, BATCH_RESULT_KEY, BATCH_ERROR_KEY,
-    BATCH_INDEX_KEY, BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY)
+    BATCH_INDEX_KEY, BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY, VERBOSE)
 
 # ==============================================================================
 # CONSTANT DEFINITION
@@ -23,7 +23,6 @@ from cloud_api import (
 
 PARALLEL_WORKERS = 4
 BATCH_SIZE = 10
-VERBOSE = False
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION

@@ -15,7 +15,7 @@ from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from cloud_api import (
     DOCUMENT_TYPE, ENCODING_TYPE, APPLY_AXIS,
-    get_client, format_sentiment_analysis)
+    get_client, format_sentiment_analysis, move_api_columns_to_end)
 
 
 # ==============================================================================
@@ -23,6 +23,8 @@ from cloud_api import (
 # ==============================================================================
 
 api_configuration_preset = get_recipe_config().get("api_configuration_preset")
+if api_configuration_preset is None or api_configuration_preset == {}:
+    raise ValueError("Please specify an API configuration preset")
 service_account_key = api_configuration_preset.get("gcp_service_account_key")
 api_quota_rate_limit = api_configuration_preset.get("api_quota_rate_limit")
 api_quota_period = api_configuration_preset.get("api_quota_period")
@@ -79,6 +81,7 @@ output_df = output_df.apply(
     func=format_sentiment_analysis, axis=APPLY_AXIS,
     response_column=api_column_names.response, sentiment_scale=sentiment_scale,
     error_handling=error_handling, column_prefix=column_prefix)
+output_df = move_api_columns_to_end(output_df, api_column_names)
 logging.info("Formatting API results: Done.")
 
 output_dataset.write_with_schema(output_df)

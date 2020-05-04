@@ -100,35 +100,6 @@
             "defaultValue": "auto"
         },
         {
-            "name": "separator_output",
-            "label": "Output Parameters",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "output_format",
-            "label": "Format",
-            "type": "SELECT",
-            "mandatory": true,
-            "selectChoices": [
-                {
-                    "value": "SINGLE_COLUMN",
-                    "label": "Single JSON column"
-                },
-                {
-                    "value": "MULTIPLE_COLUMNS",
-                    "label": "Multiple columns by entity type"
-                }
-            ],
-            "defaultValue": "MULTIPLE_COLUMNS"
-        },
-        {
-            "name": "entity_sentiment",
-            "label": "Entity sentiment",
-            "description": "Compute at additional cost",
-            "type": "BOOLEAN",
-            "defaultValue": false
-        },
-        {
             "name": "separator_configuration",
             "label": "Configuration",
             "type": "SEPARATOR"
@@ -141,9 +112,40 @@
             "mandatory": true
         },
         {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
+            "type": "BOOLEAN",
+            "defaultValue": false
+        },
+        {
+            "name": "output_format",
+            "label": "Format",
+            "type": "SELECT",
+            "mandatory": true,
+            "visibilityCondition": "model.expert == true",
+            "selectChoices": [
+                {
+                    "value": "MULTIPLE_COLUMNS",
+                    "label": "Multiple columns by entity type"
+                },
+                {
+                    "value": "SINGLE_COLUMN",
+                    "label": "Single JSON column"
+                }
+            ],
+            "defaultValue": "MULTIPLE_COLUMNS",
+            "description": "Multiple columns in human-readable format or single column in JSON format"
+        },
+        {
             "name": "error_handling",
             "label": "API error handling",
             "type": "SELECT",
+            "visibilityCondition": "model.expert == true",
             "selectChoices": [
                 {
                     "value": "LOG",
@@ -154,9 +156,17 @@
                     "label": "Fail"
                 }
             ],
-            "description": "Log API errors to the output or fail with an exception",
+            "description": "Log API errors to the output or fail with an exception on any API error",
             "defaultValue": "LOG",
             "mandatory": true
+        },
+        {
+            "name": "entity_sentiment",
+            "label": "Entity sentiment",
+            "description": "Compute at additional cost",
+            "type": "BOOLEAN",
+            "defaultValue": false,
+            "visibilityCondition": "model.expert == true"
         }
     ],
     "resourceKeys": []
