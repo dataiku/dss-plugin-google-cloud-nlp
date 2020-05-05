@@ -101,8 +101,7 @@ def validate_column_input(
     Validate that user input for column parameter is valid.
     """
     if column_name is None or len(column_name) == 0:
-        raise ValueError(
-            "You must specify the '{}' column.".format(column_name))
+        raise ValueError("You must specify a valid column name.")
     if column_name not in column_list:
         raise ValueError(
             "Column '{}' is not present in the input dataset.".format(
