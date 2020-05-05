@@ -78,8 +78,8 @@ def format_named_entity_recognition(
         row[entity_column] = response.get("entities", '')
     else:
         entities = response.get("entities", [])
-        available_entity_types = [
-            n for n, m in language.enums.Entity.Type.__members__.items()]
+        available_entity_types = sorted([
+            n for n, m in language.enums.Entity.Type.__members__.items()])
         for n in available_entity_types:
             entity_type_column = generate_unique(
                 "entity_type_" + n.lower(), row.keys(), column_prefix)

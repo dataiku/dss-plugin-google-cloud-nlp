@@ -9,7 +9,8 @@ from google.protobuf.json_format import MessageToJson
 import dataiku
 
 from plugin_io_utils import (
-    ErrorHandlingEnum, build_unique_column_names, validate_column_input)
+    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, build_unique_column_names,
+    generate_unique, validate_column_input, set_column_description)
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
@@ -47,7 +48,12 @@ input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
 column_prefix = "sentiment_api"
 api_column_names = build_unique_column_names(input_df, column_prefix)
-
+sentiment_score_column = generate_unique(
+    "score", input_columns_names, column_prefix)
+sentiment_score_scaled_column = generate_unique(
+    "score_scaled", input_columns_names, column_prefix)
+sentiment_magnitude_column = generate_unique(
+    "magnitude", input_columns_names, column_prefix)
 
 # ==============================================================================
 # RUN
@@ -85,3 +91,14 @@ output_df = move_api_columns_to_end(output_df, api_column_names)
 logging.info("Formatting API results: Done.")
 
 output_dataset.write_with_schema(output_df)
+column_description_dict = {
+    v: COLUMN_DESCRIPTION_DICT[k]
+    for k, v in api_column_names._asdict().items()}
+column_description_dict[sentiment_score_column] = \
+    "Sentiment score from the API in numerical format between -1 and 1"
+column_description_dict[sentiment_score_scaled_column] = \
+    "Scaled sentiment score according to the “Sentiment scale” parameter"
+column_description_dict[sentiment_magnitude_column] = \
+    "Magnitude score from the API indicating the strength of emotion " + \
+    "(both positive and negative) between 0 and +Inf"
+set_column_description(output_dataset, column_description_dict)

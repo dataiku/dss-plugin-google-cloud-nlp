@@ -38,6 +38,7 @@
             "type": "COLUMN",
             "columnRole": "input_dataset",
             "mandatory": true,
+            "description": "Requires at least 20 word tokens",
             "allowedColumnTypes": [
                 "string"
             ]

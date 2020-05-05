@@ -9,8 +9,8 @@ from google.protobuf.json_format import MessageToJson
 import dataiku
 
 from plugin_io_utils import (
-    ErrorHandlingEnum, OutputFormatEnum,
-    build_unique_column_names, validate_column_input)
+    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, OutputFormatEnum,
+    build_unique_column_names, validate_column_input, set_column_description)
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
@@ -92,3 +92,7 @@ output_df = move_api_columns_to_end(output_df, api_column_names)
 logging.info("Formatting API results: Done.")
 
 output_dataset.write_with_schema(output_df)
+column_description_dict = {
+    v: COLUMN_DESCRIPTION_DICT[k]
+    for k, v in api_column_names._asdict().items()}
+set_column_description(output_dataset, column_description_dict)

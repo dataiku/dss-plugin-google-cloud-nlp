@@ -6,6 +6,7 @@
     },
     "defaultDefinableAtProjectLevel": true,
     "defaultDefinableInline": false,
+    "definableInline": false,
     "params": [
         {
             "name": "separator_authentification",
@@ -52,7 +53,7 @@
         {
             "name": "parallel_workers",
             "label": "Concurrency",
-            "description": "Number of threads calling the API in parallel. Increase to speed-up computation within the quota defined above.",
+            "description": "Number of threads calling the API in parallel (maximum 100). Increase to speed-up computation within the quota defined above.",
             "type": "INT",
             "mandatory": true,
             "defaultValue": 4,
