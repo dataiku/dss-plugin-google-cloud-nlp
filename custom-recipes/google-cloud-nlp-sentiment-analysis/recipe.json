@@ -96,15 +96,35 @@
             "defaultValue": "auto"
         },
         {
-            "name": "separator_output",
-            "label": "Output Parameters",
+            "name": "separator_configuration",
+            "label": "Configuration",
             "type": "SEPARATOR"
+        },
+        {
+            "name": "api_configuration_preset",
+            "label": "API configuration preset",
+            "type": "PRESET",
+            "parameterSetId": "api-configuration",
+            "mandatory": true
+        },
+        {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
+            "type": "BOOLEAN",
+            "defaultValue": false
         },
         {
             "name": "sentiment_scale",
             "label": "Sentiment scale",
             "type": "SELECT",
             "mandatory": true,
+            "visibilityCondition": "model.expert == true",
+            "description": "Apply categorical or numerical scaling to the score returned by the API",
             "selectChoices": [
                 {
                     "value": "binary",
@@ -130,20 +150,9 @@
             "defaultValue": "ternary"
         },
         {
-            "name": "separator_configuration",
-            "label": "Configuration",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "api_configuration_preset",
-            "label": "API configuration preset",
-            "type": "PRESET",
-            "parameterSetId": "api-configuration",
-            "mandatory": true
-        },
-        {
             "name": "error_handling",
-            "label": "API error handling",
+            "label": "Error handling",
+            "visibilityCondition": "model.expert == true",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -155,7 +164,7 @@
                     "label": "Fail"
                 }
             ],
-            "description": "Log API errors to the output or fail with an exception",
+            "description": "Log API errors to the output or fail with an exception on any API error",
             "defaultValue": "LOG",
             "mandatory": true
         }

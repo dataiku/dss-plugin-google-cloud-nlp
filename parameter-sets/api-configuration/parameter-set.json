@@ -27,33 +27,32 @@
             "description": "Throttling to stay within the quota defined by Google Cloud: https://cloud.google.com/natural-language/quotas"
         },
         {
-            "name": "api_quota_rate_limit",
-            "label": "Rate limit",
-            "description": "Maximum number of requests per period for a given DSS activity",
-            "type": "INT",
-            "mandatory": true,
-            "defaultValue": 600,
-            "minI": 1
-        },
-        {
             "name": "api_quota_period",
             "label": "Period",
-            "description": "Reset period of the quota in seconds",
+            "description": "Reset period of the quota in seconds. Defined by Google Cloud.",
             "type": "INT",
             "mandatory": true,
             "defaultValue": 60,
             "minI": 1
         },
         {
+            "name": "api_quota_rate_limit",
+            "label": "Rate limit",
+            "description": "Maximum number of requests per period for one DSS activity. Reduce for concurrent activities.",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 600,
+            "minI": 1
+        },
+        {
             "name": "separator_performance",
             "label": "Parallelization",
-            "type": "SEPARATOR",
-            "description": "Increase to speed-up computation (within the quota defined above)"
+            "type": "SEPARATOR"
         },
         {
             "name": "parallel_workers",
             "label": "Concurrency",
-            "description": "Maximum number of threads calling the API in parallel",
+            "description": "Number of threads calling the API in parallel. Increase to speed-up computation within the quota defined above.",
             "type": "INT",
             "mandatory": true,
             "defaultValue": 4,

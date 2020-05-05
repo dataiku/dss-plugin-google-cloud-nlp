@@ -57,39 +57,6 @@
             "description": "Only supported language"
         },
         {
-            "name": "separator_output",
-            "label": "Output Parameters",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "output_format",
-            "label": "Format",
-            "type": "SELECT",
-            "mandatory": true,
-            "selectChoices": [
-                {
-                    "value": "SINGLE_COLUMN",
-                    "label": "Single JSON column"
-                },
-                {
-                    "value": "MULTIPLE_COLUMNS",
-                    "label": "Multiple columns by category"
-                }
-            ],
-            "defaultValue": "MULTIPLE_COLUMNS"
-        },
-        {
-            "name": "num_categories",
-            "label": "Number of categories",
-            "description": "Maximum number of categories to extract",
-            "type": "INT",
-            "mandatory": true,
-            "defaultValue": 3,
-            "minI": 1,
-            "maxI": 100,
-            "visibilityCondition": "model.output_format == 'MULTIPLE_COLUMNS'"
-        },
-        {
             "name": "separator_configuration",
             "label": "Configuration",
             "type": "SEPARATOR"
@@ -102,8 +69,49 @@
             "mandatory": true
         },
         {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
+            "type": "BOOLEAN",
+            "defaultValue": false
+        },
+        {
+            "name": "output_format",
+            "label": "Format",
+            "type": "SELECT",
+            "mandatory": true,
+            "visibilityCondition": "model.expert == true",
+            "selectChoices": [
+                {
+                    "value": "SINGLE_COLUMN",
+                    "label": "Single JSON column"
+                },
+                {
+                    "value": "MULTIPLE_COLUMNS",
+                    "label": "Multiple columns by category"
+                }
+            ],
+            "defaultValue": "MULTIPLE_COLUMNS",
+            "description": "Multiple columns in human-readable format or single column in JSON format"
+        },
+        {
+            "name": "num_categories",
+            "label": "Number of categories",
+            "description": "Number of categories to extract from the API response",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 3,
+            "minI": 1,
+            "maxI": 100,
+            "visibilityCondition": "model.expert == true && model.output_format == 'MULTIPLE_COLUMNS'"
+        },
+        {
             "name": "error_handling",
-            "label": "API error handling",
+            "label": "Error handling",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -115,9 +123,10 @@
                     "label": "Fail"
                 }
             ],
-            "description": "Log API errors to the output or fail with an exception",
+            "description": "Log API errors to the output or fail with an exception on any API error",
             "defaultValue": "LOG",
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.expert == true"
         }
     ],
     "resourceKeys": []
