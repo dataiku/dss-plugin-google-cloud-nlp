@@ -11,7 +11,7 @@ endif
 ifndef DKU_PLUGIN_DEVELOPER_REPO_URL
 $(error the DKU_PLUGIN_DEVELOPER_REPO_URL environment variable is not set)
 endif
-ifeq ("${DKU_PLUGIN_DEVELOPER_REPO_URL: -1}", "/")
+ifeq (`echo "${DKU_PLUGIN_DEVELOPER_REPO_URL: -1}"`, "/")
 $(error the DKU_PLUGIN_DEVELOPER_REPO_URL environment variable must not end with '/')
 endif
 
