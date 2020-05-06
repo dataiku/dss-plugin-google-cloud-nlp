@@ -114,6 +114,17 @@
             "mandatory": true
         },
         {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
+            "type": "BOOLEAN",
+            "defaultValue": false
+        },
+        {
             "name": "entity_types",
             "label": "Entity types",
             "type": "MULTISELECT",
@@ -180,17 +191,6 @@
                 "ORGANIZATION",
                 "PERSON"
             ]
-        },
-        {
-            "name": "separator_advanced",
-            "label": "Advanced",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "expert",
-            "label": "Expert mode",
-            "type": "BOOLEAN",
-            "defaultValue": false
         },
         {
             "name": "error_handling",
