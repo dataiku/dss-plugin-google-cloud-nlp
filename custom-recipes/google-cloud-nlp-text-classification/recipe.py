@@ -6,16 +6,14 @@ from google.cloud import language
 from google.protobuf.json_format import MessageToJson
 
 import dataiku
-
-from plugin_io_utils import (
-    ErrorHandlingEnum, build_unique_column_names,
-    validate_column_input, set_column_description)
-from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
+
+from plugin_io_utils import (
+    ErrorHandlingEnum, validate_column_input, set_column_description)
+from api_parallelizer import api_parallelizer
 from api_formatting import (
-    DOCUMENT_TYPE, get_client, format_df_text_classification,
-    compute_column_description_text_classification)
+    DOCUMENT_TYPE, get_client, TextClassificationAPIFormatter)
 
 
 # ==============================================================================
@@ -46,7 +44,6 @@ validate_column_input(text_column, input_columns_names)
 input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
 column_prefix = "text_classif_api"
-api_column_names = build_unique_column_names(input_df, column_prefix)
 
 
 # ==============================================================================
@@ -69,19 +66,16 @@ def call_api_text_classification(
         return MessageToJson(response)
 
 
-output_df = api_parallelizer(
+df = api_parallelizer(
     input_df=input_df, api_call_function=call_api_text_classification,
     parallel_workers=parallel_workers, error_handling=error_handling,
     column_prefix=column_prefix, text_column=text_column,
     text_language=text_language)
 
-output_df = format_df_text_classification(
-    df=output_df, api_column_names=api_column_names,
-    num_categories=num_categories, column_prefix=column_prefix,
-    error_handling=error_handling)
-column_description_dict = compute_column_description_text_classification(
-    df=input_df, api_column_names=api_column_names,
-    num_categories=num_categories, column_prefix=column_prefix)
+api_formatter = TextClassificationAPIFormatter(
+    input_df=input_df, column_prefix=column_prefix,
+    num_categories=num_categories, error_handling=error_handling)
+output_df = api_formatter.format_df(df)
 
 output_dataset.write_with_schema(output_df)
-set_column_description(output_dataset, column_description_dict)
+set_column_description(output_dataset, api_formatter.column_description_dict)

@@ -4,7 +4,7 @@ import logging
 import pandas as pd
 
 from enum import Enum
-from typing import AnyStr, Dict, List, Union, NamedTuple
+from typing import AnyStr, Dict, List, Union
 
 from google.cloud import language
 from google.api_core.exceptions import GoogleAPICallError, RetryError
@@ -12,7 +12,8 @@ from google.oauth2 import service_account
 
 from plugin_io_utils import (
     API_COLUMN_NAMES_DESCRIPTION_DICT, ErrorHandlingEnum,
-    generate_unique, safe_json_loads, move_api_columns_to_end)
+    build_unique_column_names, generate_unique,
+    safe_json_loads, move_api_columns_to_end)
 
 
 # ==============================================================================
@@ -54,10 +55,6 @@ class EntityTypeEnum(Enum):
 # CLASS AND FUNCTION DEFINITION
 # ==============================================================================
 
-# =============================
-# API CLIENT
-# =============================
-
 def get_client(gcp_service_account_key=None):
     """
     Get a Google Natural Language API client from the service account key.
@@ -80,277 +77,225 @@ def get_client(gcp_service_account_key=None):
     return client
 
 
-# =============================
-# SENTIMENT ANALYSIS API
-# =============================
-
-def scale_sentiment_score(
-    score: float,
-    scale: AnyStr = 'ternary'
-) -> Union[AnyStr, float]:
+class SentimentAnalysisAPIFormatter:
     """
-    Scale sentiment score according to categorical or numerical rules
-    """
-    if scale == 'binary':
-        return 'negative' if score < 0 else 'positive'
-    elif scale == 'ternary':
-        if score < -0.33:
-            return 'negative'
-        elif score > 0.33:
-            return 'positive'
-        else:
-            return 'neutral'
-    elif scale == 'quinary':
-        if score < -0.66:
-            return 'highly negative'
-        elif score < -0.33:
-            return 'negative'
-        elif score < 0.33:
-            return 'neutral'
-        elif score < 0.66:
-            return 'positive'
-        else:
-            return 'highly positive'
-    elif scale == 'rescale_zero_to_one':
-        return float((score+1.)/2)
-    else:
-        return float(score)
-
-
-def format_row_sentiment_analysis(
-    row: Dict,
-    response_column: AnyStr,
-    sentiment_scale: AnyStr = "ternary",
-    column_prefix: AnyStr = "sentiment_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> Dict:
-    """
-    Format Sentiment Analysis API response, row-by-row:
+    Formatter class for Sentiment Analysis API responses:
     - make sure response is valid JSON
     - expand results to two score and magnitude columns
-    - scale the score according to predefined categorical or numerical rules
+    - scale the score according to categorical or numerical rules
+    - compute column descriptions
     """
-    raw_response = row[response_column]
-    response = safe_json_loads(raw_response, error_handling)
-    sentiment_score_column = generate_unique(
-        "score", row.keys(), column_prefix)
-    sentiment_score_scaled_column = generate_unique(
-        "score_scaled", row.keys(), column_prefix)
-    sentiment_magnitude_column = generate_unique(
-        "magnitude", row.keys(), column_prefix)
-    sentiment = response.get("documentSentiment", {})
-    sentiment_score = sentiment.get("score")
-    magnitude_score = sentiment.get("magnitude")
-    if sentiment_score is not None:
-        row[sentiment_score_column] = float(sentiment_score)
-        row[sentiment_score_scaled_column] = scale_sentiment_score(
-            sentiment_score, sentiment_scale)
-    else:
-        row[sentiment_score_column] = None
-        row[sentiment_score_scaled_column] = None
-    if magnitude_score is not None:
-        row[sentiment_magnitude_column] = float(magnitude_score)
-    else:
-        row[sentiment_magnitude_column] = None
-    return row
 
+    def __init__(
+        self, input_df: pd.DataFrame, sentiment_scale: AnyStr = "ternary",
+        column_prefix: AnyStr = "sentiment_api",
+        error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    ):
+        self.input_df = input_df
+        self.column_prefix = column_prefix
+        self.sentiment_scale = sentiment_scale
+        self.error_handling = error_handling
+        self.api_column_names = build_unique_column_names(
+            input_df, column_prefix)
+        self.sentiment_score_column = generate_unique(
+            "score", input_df.keys(), self.column_prefix)
+        self.sentiment_score_scaled_column = generate_unique(
+            "score_scaled", input_df.keys(), column_prefix)
+        self.sentiment_magnitude_column = generate_unique(
+            "magnitude", input_df.keys(), column_prefix)
+        self.column_description_dict = self._compute_column_description()
 
-def format_df_sentiment_analysis(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    sentiment_scale: AnyStr = "ternary",
-    column_prefix: AnyStr = "sentiment_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> pd.DataFrame:
-    """
-    Format a DataFrame containing API responses for Sentiment Analysis
-    """
-    logging.info("Formatting API results...")
-    df = df.apply(
-        func=format_row_sentiment_analysis, axis=1,
-        response_column=api_column_names.response,
-        sentiment_scale=sentiment_scale, error_handling=error_handling,
-        column_prefix=column_prefix)
-    df = move_api_columns_to_end(df, api_column_names)
-    logging.info("Formatting API results: Done.")
-    return df
+    def _compute_column_description(self):
+        column_description_dict = {
+            v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
+            for k, v in self.api_column_names._asdict().items()}
+        column_description_dict[self.sentiment_score_column] = \
+            "Sentiment score from the API in numerical format between -1 and 1"
+        column_description_dict[self.sentiment_score_scaled_column] = \
+            "Scaled sentiment score according to “Sentiment scale” parameter"
+        column_description_dict[self.sentiment_magnitude_column] = \
+            "Magnitude score indicating emotion strength " + \
+            "(both positive and negative) between 0 and +Inf"
+        return column_description_dict
 
-
-def compute_column_description_sentiment_analysis(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    column_prefix: AnyStr = "sentiment_api",
-) -> Dict:
-    """
-    Compute dictionary of column descriptions for Sentiment Analysis API
-    """
-    column_description_dict = {
-        v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
-        for k, v in api_column_names._asdict().items()}
-    sentiment_score_column = generate_unique(
-        "score", df.keys(), column_prefix)
-    sentiment_score_scaled_column = generate_unique(
-        "score_scaled", df.keys(), column_prefix)
-    sentiment_magnitude_column = generate_unique(
-        "magnitude", df.keys(), column_prefix)
-    column_description_dict[sentiment_score_column] = \
-        "Sentiment score from the API in numerical format between -1 and 1"
-    column_description_dict[sentiment_score_scaled_column] = \
-        "Scaled sentiment score according to the “Sentiment scale” parameter"
-    column_description_dict[sentiment_magnitude_column] = \
-        "Magnitude score indicating emotion strength " + \
-        "(both positive and negative) between 0 and +Inf"
-    return column_description_dict
-
-
-# =============================
-# NAMED ENTITY RECOGNITION API
-# =============================
-
-def format_row_named_entity_recognition(
-    row: Dict,
-    response_column: AnyStr,
-    entity_types: List,
-    column_prefix: AnyStr = "entity_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> Dict:
-    """
-    Format Named Entity Recognition API response, row-by-row:
-    - make sure response is valid JSON
-    - expand results to multiple JSON columns (one by entity type)
-    """
-    raw_response = row[response_column]
-    response = safe_json_loads(raw_response, error_handling)
-    entities = response.get("entities", [])
-    selected_entity_types = sorted([
-        e.name for e in entity_types])
-    for n in selected_entity_types:
-        entity_type_column = generate_unique(
-            "entity_type_" + n.lower(), row.keys(), column_prefix)
-        row[entity_type_column] = [
-            e.get("name") for e in entities if e.get("type", '') == n
-        ]
-        if len(row[entity_type_column]) == 0:
-            row[entity_type_column] = ''
-    return row
-
-
-def format_df_named_entity_recognition(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    entity_types: List,
-    column_prefix: AnyStr = "entity_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> pd.DataFrame:
-    """
-    Format a DataFrame containing API responses for Named Entity Recognition
-    """
-    logging.info("Formatting API results...")
-    df = df.apply(
-        func=format_row_named_entity_recognition, axis=1,
-        response_column=api_column_names.response, entity_types=entity_types,
-        error_handling=error_handling, column_prefix=column_prefix)
-    df = move_api_columns_to_end(df, api_column_names)
-    logging.info("Formatting API results: Done.")
-    return df
-
-
-def compute_column_description_named_entity_recognition(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    column_prefix: AnyStr = "entity_api",
-) -> Dict:
-    """
-    Compute dictionary of column descriptions for Named Entity Recognition API
-    """
-    column_description_dict = {
-        v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
-        for k, v in api_column_names._asdict().items()}
-    for n, m in EntityTypeEnum.__members__.items():
-        entity_type_column = generate_unique(
-            "entity_type_" + n.lower(), df.keys(), column_prefix)
-        column_description_dict[entity_type_column] = \
-            "List of '{}' entities recognized by the API".format(str(m.value))
-    return column_description_dict
-
-
-# =============================
-# TEXT CLASSIFICATION API
-# =============================
-
-def format_row_text_classification(
-    row: Dict,
-    response_column: AnyStr,
-    num_categories: int = 3,
-    column_prefix: AnyStr = "text_classif_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> Dict:
-    """
-    Format Text Classification API response, row-by-row:
-    - make sure response is valid JSON
-    - expand results to multiple JSON columns (one by classification category)
-    """
-    raw_response = row[response_column]
-    response = safe_json_loads(raw_response, error_handling)
-    categories = sorted(
-        response.get("categories", []), key=lambda x: x.get("confidence"),
-        reverse=True)
-    for n in range(num_categories):
-        category_column = generate_unique(
-            "category_" + str(n+1) + "_name", row.keys(), column_prefix)
-        confidence_column = generate_unique(
-            "category_" + str(n+1) + "_confidence", row.keys(), column_prefix)
-        if len(categories) > n:
-            row[category_column] = categories[n].get("name", '')
-            row[confidence_column] = categories[n].get("confidence")
+    def _scale_sentiment_score(
+        self, score: float, sentiment_scale: AnyStr = 'ternary'
+    ) -> Union[AnyStr, float]:
+        if sentiment_scale == 'binary':
+            return 'negative' if score < 0 else 'positive'
+        elif sentiment_scale == 'ternary':
+            if score < -0.33:
+                return 'negative'
+            elif score > 0.33:
+                return 'positive'
+            else:
+                return 'neutral'
+        elif sentiment_scale == 'quinary':
+            if score < -0.66:
+                return 'highly negative'
+            elif score < -0.33:
+                return 'negative'
+            elif score < 0.33:
+                return 'neutral'
+            elif score < 0.66:
+                return 'positive'
+            else:
+                return 'highly positive'
+        elif sentiment_scale == 'rescale_zero_to_one':
+            return float((score+1.)/2)
         else:
-            row[category_column] = ''
-            row[confidence_column] = None
-    return row
+            return float(score)
+
+    def format_row(self, row: Dict) -> Dict:
+        raw_response = row[self.api_column_names.response]
+        response = safe_json_loads(raw_response, self.error_handling)
+        sentiment = response.get("documentSentiment", {})
+        sentiment_score = sentiment.get("score")
+        magnitude_score = sentiment.get("magnitude")
+        if sentiment_score is not None:
+            row[self.sentiment_score_column] = float(sentiment_score)
+            row[self.sentiment_score_scaled_column] = \
+                self._scale_sentiment_score(
+                    sentiment_score, self.sentiment_scale)
+        else:
+            row[self.sentiment_score_column] = None
+            row[self.sentiment_score_scaled_column] = None
+        if magnitude_score is not None:
+            row[self.sentiment_magnitude_column] = float(magnitude_score)
+        else:
+            row[self.sentiment_magnitude_column] = None
+        return row
+
+    def format_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        logging.info("Formatting API results...")
+        df = df.apply(func=self.format_row, axis=1)
+        df = move_api_columns_to_end(df, self.api_column_names)
+        logging.info("Formatting API results: Done.")
+        return df
 
 
-def format_df_text_classification(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    num_categories: int = 3,
-    column_prefix: AnyStr = "text_classif_api",
-    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
-) -> pd.DataFrame:
+class NamedEntityRecognitionAPIFormatter:
     """
-    Format a DataFrame containing API responses for Text Classification
+    Formatter class for Named Entity Recognition API responses:
+    - make sure response is valid JSON
+    - expand results to multiple columns (one by entity type)
+    - compute column descriptions
     """
-    logging.info("Formatting API results...")
-    df = df.apply(
-        func=format_row_text_classification, axis=1,
-        response_column=api_column_names.response,
-        num_categories=num_categories, error_handling=error_handling,
-        column_prefix=column_prefix)
-    df = move_api_columns_to_end(df, api_column_names)
-    logging.info("Formatting API results: Done.")
-    return df
+
+    def __init__(
+        self, input_df: pd.DataFrame, entity_types: List,
+        column_prefix: AnyStr = "entity_api",
+        error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    ):
+        self.input_df = input_df
+        self.column_prefix = column_prefix
+        self.entity_types = entity_types
+        self.error_handling = error_handling
+        self.api_column_names = build_unique_column_names(
+            input_df, column_prefix)
+        self.column_description_dict = self._compute_column_description()
+
+    def _compute_column_description(self):
+        column_description_dict = {
+            v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
+            for k, v in self.api_column_names._asdict().items()}
+        for n, m in EntityTypeEnum.__members__.items():
+            entity_type_column = generate_unique(
+                "entity_type_" + n.lower(),
+                self.input_df.keys(), self.column_prefix)
+            column_description_dict[entity_type_column] = \
+                "List of '{}' entities recognized by the API".format(
+                    str(m.value))
+        return column_description_dict
+
+    def format_row(self, row: Dict) -> Dict:
+        raw_response = row[self.api_column_names.response]
+        response = safe_json_loads(raw_response, self.error_handling)
+        entities = response.get("entities", [])
+        selected_entity_types = sorted([
+            e.name for e in self.entity_types])
+        for n in selected_entity_types:
+            entity_type_column = generate_unique(
+                "entity_type_" + n.lower(), row.keys(), self.column_prefix)
+            row[entity_type_column] = [
+                e.get("name") for e in entities if e.get("type", '') == n
+            ]
+            if len(row[entity_type_column]) == 0:
+                row[entity_type_column] = ''
+        return row
+
+    def format_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        logging.info("Formatting API results...")
+        df = df.apply(func=self.format_row, axis=1)
+        df = move_api_columns_to_end(df, self.api_column_names)
+        logging.info("Formatting API results: Done.")
+        return df
 
 
-def compute_column_description_text_classification(
-    df: pd.DataFrame,
-    api_column_names: NamedTuple,
-    num_categories: int = 3,
-    column_prefix: AnyStr = "text_classif_api"
-) -> Dict:
+class TextClassificationAPIFormatter:
     """
-    Compute dictionary of column descriptions for Named Entity Recognition API
+    Formatter class for Text Classification API responses:
+    - make sure response is valid JSON
+    - expand results to multiple columns (one by classification prediction)
+    - compute column descriptions
     """
-    column_description_dict = {
-        v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
-        for k, v in api_column_names._asdict().items()}
-    for n in range(num_categories):
-        category_column = generate_unique(
-            "category_" + str(n+1) + "_name", df.keys(), column_prefix)
-        confidence_column = generate_unique(
-            "category_" + str(n+1) + "_confidence", df.keys(), column_prefix)
-        column_description_dict[category_column] = \
-            "Name of the category {} representing the document".format(
-                str(n+1))
-        column_description_dict[confidence_column] = \
-            "Classifier's confidence in the category {}".format(
-                str(n+1))
-    return column_description_dict
+
+    def __init__(
+        self, input_df: pd.DataFrame, num_categories: int = 1,
+        column_prefix: AnyStr = "text_classif_api",
+        error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+    ):
+        self.input_df = input_df
+        self.column_prefix = column_prefix
+        self.num_categories = num_categories
+        self.error_handling = error_handling
+        self.api_column_names = build_unique_column_names(
+            input_df, column_prefix)
+        self.column_description_dict = self._compute_column_description()
+
+    def _compute_column_description(self):
+        column_description_dict = {
+            v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
+            for k, v in self.api_column_names._asdict().items()}
+        for n in range(self.num_categories):
+            category_column = generate_unique(
+                "category_" + str(n+1) + "_name",
+                self.input_df.keys(), self.column_prefix)
+            confidence_column = generate_unique(
+                "category_" + str(n+1) + "_confidence",
+                self.input_df.keys(), self.column_prefix)
+            column_description_dict[category_column] = \
+                "Name of the category {} representing the document".format(
+                    str(n+1))
+            column_description_dict[confidence_column] = \
+                "Classifier's confidence in the category {}".format(
+                    str(n+1))
+        return column_description_dict
+
+    def format_row(self, row: Dict) -> Dict:
+        raw_response = row[self.api_column_names.response]
+        response = safe_json_loads(raw_response, self.error_handling)
+        categories = sorted(
+            response.get("categories", []), key=lambda x: x.get("confidence"),
+            reverse=True)
+        for n in range(self.num_categories):
+            category_column = generate_unique(
+                "category_" + str(n+1) + "_name",
+                row.keys(), self.column_prefix)
+            confidence_column = generate_unique(
+                "category_" + str(n+1) + "_confidence",
+                row.keys(), self.column_prefix)
+            if len(categories) > n:
+                row[category_column] = categories[n].get("name", '')
+                row[confidence_column] = categories[n].get("confidence")
+            else:
+                row[category_column] = ''
+                row[confidence_column] = None
+        return row
+
+    def format_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        logging.info("Formatting API results...")
+        df = df.apply(func=self.format_row, axis=1)
+        df = move_api_columns_to_end(df, self.api_column_names)
+        logging.info("Formatting API results: Done.")
+        return df
