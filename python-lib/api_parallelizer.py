@@ -17,12 +17,14 @@ from api_formatting import (
     API_EXCEPTIONS, API_SUPPORT_BATCH, BATCH_RESULT_KEY, BATCH_ERROR_KEY,
     BATCH_INDEX_KEY, BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY, VERBOSE)
 
+
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
 
 PARALLEL_WORKERS = 4
 BATCH_SIZE = 10
+
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION

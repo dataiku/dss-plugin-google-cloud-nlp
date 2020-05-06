@@ -87,7 +87,7 @@
             "description": "Number of categories to extract from the API response",
             "type": "INT",
             "mandatory": true,
-            "defaultValue": 3,
+            "defaultValue": 1,
             "minI": 1,
             "maxI": 100,
             "visibilityCondition": "model.expert == true"

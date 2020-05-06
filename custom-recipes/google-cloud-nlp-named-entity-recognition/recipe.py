@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 from typing import Dict, AnyStr
 from ratelimit import limits, RateLimitException
 from retry import retry

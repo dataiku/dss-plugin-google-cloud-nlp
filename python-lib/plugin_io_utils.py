@@ -1,10 +1,12 @@
 import logging
 import json
+import pandas as pd
 import dataiku
 
 from enum import Enum
 from typing import AnyStr, List, NamedTuple, Dict
 from collections import OrderedDict, namedtuple
+
 
 # ==============================================================================
 # CONSTANT DEFINITION
@@ -101,6 +103,22 @@ def validate_column_input(
         raise ValueError(
             "Column '{}' is not present in the input dataset.".format(
                 column_name))
+
+
+def move_api_columns_to_end(
+    df: pd.DataFrame,
+    api_column_names: NamedTuple,
+) -> pd.DataFrame:
+    """
+    Move non-human-readable API columns to the end of the dataframe
+    """
+    api_column_names_dict = api_column_names._asdict()
+    if "error_raw" not in df.keys():
+        api_column_names_dict.pop("error_raw", None)
+    cols = [c for c in df.keys() if c not in api_column_names_dict.values()]
+    new_cols = cols + list(api_column_names_dict.values())
+    df = df.reindex(columns=new_cols)
+    return df
 
 
 def set_column_description(

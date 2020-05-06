@@ -11,8 +11,8 @@ from google.api_core.exceptions import GoogleAPICallError, RetryError
 from google.oauth2 import service_account
 
 from plugin_io_utils import (
-    API_COLUMN_NAMES_DESCRIPTION_DICT, generate_unique,
-    safe_json_loads, ErrorHandlingEnum)
+    API_COLUMN_NAMES_DESCRIPTION_DICT, ErrorHandlingEnum,
+    generate_unique, safe_json_loads, move_api_columns_to_end)
 
 
 # ==============================================================================
@@ -44,14 +44,19 @@ class EntityTypeEnum(Enum):
     ORGANIZATION = "Organization"
     OTHER = "Other"
     PERSON = "Person"
+    PHONE_NUMBER = "Phone number"
     PRICE = "Price"
     UNKNOWN = "Unknown"
     WORK_OF_ART = "Work of art"
 
+
 # ==============================================================================
-# FUNCTION DEFINITION
+# CLASS AND FUNCTION DEFINITION
 # ==============================================================================
 
+# =============================
+# API CLIENT
+# =============================
 
 def get_client(gcp_service_account_key=None):
     """
@@ -74,6 +79,10 @@ def get_client(gcp_service_account_key=None):
     client = language.LanguageServiceClient(credentials=credentials)
     return client
 
+
+# =============================
+# SENTIMENT ANALYSIS API
+# =============================
 
 def scale_sentiment_score(
     score: float,
@@ -194,6 +203,10 @@ def compute_column_description_sentiment_analysis(
     return column_description_dict
 
 
+# =============================
+# NAMED ENTITY RECOGNITION API
+# =============================
+
 def format_row_named_entity_recognition(
     row: Dict,
     response_column: AnyStr,
@@ -205,7 +218,6 @@ def format_row_named_entity_recognition(
     Format Named Entity Recognition API response, row-by-row:
     - make sure response is valid JSON
     - expand results to multiple JSON columns (one by entity type)
-    or put all entities as a list in a single JSON column
     """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
@@ -262,6 +274,10 @@ def compute_column_description_named_entity_recognition(
     return column_description_dict
 
 
+# =============================
+# TEXT CLASSIFICATION API
+# =============================
+
 def format_row_text_classification(
     row: Dict,
     response_column: AnyStr,
@@ -270,10 +286,9 @@ def format_row_text_classification(
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
-    Format the API response for text classification to:
+    Format Text Classification API response, row-by-row:
     - make sure response is valid JSON
     - expand results to multiple JSON columns (one by classification category)
-    or put all categories as a list in a single JSON column
     """
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
@@ -294,20 +309,48 @@ def format_row_text_classification(
     return row
 
 
-def move_api_columns_to_end(
+def format_df_text_classification(
     df: pd.DataFrame,
     api_column_names: NamedTuple,
-    verbose: bool = VERBOSE
+    num_categories: int = 3,
+    column_prefix: AnyStr = "text_classif_api",
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> pd.DataFrame:
     """
-    Move non-human-readable API columns to the end of the dataframe
+    Format a DataFrame containing API responses for Text Classification
     """
-    api_column_names_dict = api_column_names._asdict()
-    if not verbose:
-        api_column_names_dict.pop("error_raw", None)
-    api_column_names_list = [v for k, v in api_column_names_dict.items()]
-    cols = [
-        c for c in list(df.columns.values) if c not in api_column_names_list]
-    new_cols = cols + api_column_names_list
-    df = df.reindex(columns=new_cols)
+    logging.info("Formatting API results...")
+    df = df.apply(
+        func=format_row_text_classification, axis=1,
+        response_column=api_column_names.response,
+        num_categories=num_categories, error_handling=error_handling,
+        column_prefix=column_prefix)
+    df = move_api_columns_to_end(df, api_column_names)
+    logging.info("Formatting API results: Done.")
     return df
+
+
+def compute_column_description_text_classification(
+    df: pd.DataFrame,
+    api_column_names: NamedTuple,
+    num_categories: int = 3,
+    column_prefix: AnyStr = "text_classif_api"
+) -> Dict:
+    """
+    Compute dictionary of column descriptions for Named Entity Recognition API
+    """
+    column_description_dict = {
+        v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
+        for k, v in api_column_names._asdict().items()}
+    for n in range(num_categories):
+        category_column = generate_unique(
+            "category_" + str(n+1) + "_name", df.keys(), column_prefix)
+        confidence_column = generate_unique(
+            "category_" + str(n+1) + "_confidence", df.keys(), column_prefix)
+        column_description_dict[category_column] = \
+            "Name of the category {} representing the document".format(
+                str(n+1))
+        column_description_dict[confidence_column] = \
+            "Classifier's confidence in the category {}".format(
+                str(n+1))
+    return column_description_dict
