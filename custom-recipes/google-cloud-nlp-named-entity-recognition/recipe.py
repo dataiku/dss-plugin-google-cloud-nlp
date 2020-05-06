@@ -9,14 +9,15 @@ from google.protobuf.json_format import MessageToJson
 import dataiku
 
 from plugin_io_utils import (
-    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, build_unique_column_names, 
+    ErrorHandlingEnum, build_unique_column_names,
     validate_column_input, set_column_description)
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from api_formatting import (
-    DOCUMENT_TYPE, ENCODING_TYPE, APPLY_AXIS,
-    get_client, format_named_entity_recognition, move_api_columns_to_end)
+    DOCUMENT_TYPE, ENCODING_TYPE, EntityTypeEnum,
+    get_client, format_df_named_entity_recognition,
+    compute_column_description_named_entity_recognition)
 
 
 # ==============================================================================
@@ -34,6 +35,8 @@ text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
 entity_sentiment = get_recipe_config().get('entity_sentiment', False)
 error_handling = ErrorHandlingEnum[get_recipe_config().get('error_handling')]
+entity_types = [
+    EntityTypeEnum[i] for i in get_recipe_config().get("entity_types", [])]
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
 input_dataset = dataiku.Dataset(input_dataset_name)
@@ -82,16 +85,12 @@ output_df = api_parallelizer(
     column_prefix=column_prefix, text_column=text_column,
     text_language=text_language, entity_sentiment=entity_sentiment)
 
-logging.info("Formatting API results...")
-output_df = output_df.apply(
-    func=format_named_entity_recognition, axis=APPLY_AXIS,
-    response_column=api_column_names.response, error_handling=error_handling, 
+output_df = format_df_named_entity_recognition(
+    df=output_df, api_column_names=api_column_names, entity_types=entity_types,
+    column_prefix=column_prefix, error_handling=error_handling)
+column_description_dict = compute_column_description_named_entity_recognition(
+    df=input_df, api_column_names=api_column_names,
     column_prefix=column_prefix)
-output_df = move_api_columns_to_end(output_df, api_column_names)
-logging.info("Formatting API results: Done.")
 
 output_dataset.write_with_schema(output_df)
-column_description_dict = {
-    v: COLUMN_DESCRIPTION_DICT[k]
-    for k, v in api_column_names._asdict().items()}
 set_column_description(output_dataset, column_description_dict)

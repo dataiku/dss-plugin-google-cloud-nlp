@@ -114,6 +114,74 @@
             "mandatory": true
         },
         {
+            "name": "entity_types",
+            "label": "Entity types",
+            "type": "MULTISELECT",
+            "description": "List of entity types to extract",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "ADDRESS",
+                    "label": "Address"
+                },
+                {
+                    "value": "CONSUMER_GOOD",
+                    "label": "Consumer good"
+                },
+                {
+                    "value": "DATE",
+                    "label": "Date"
+                },
+                {
+                    "value": "EVENT",
+                    "label": "Event"
+                },
+                {
+                    "value": "LOCATION",
+                    "label": "Location"
+                },
+                {
+                    "value": "NUMBER",
+                    "label": "Number"
+                },
+                {
+                    "value": "ORGANIZATION",
+                    "label": "Organization"
+                },
+                {
+                    "value": "OTHER",
+                    "label": "Other"
+                },
+                {
+                    "value": "PERSON",
+                    "label": "Person"
+                },
+                {
+                    "value": "PHONE_NUMBER",
+                    "label": "Phone number"
+                },
+                {
+                    "value": "PRICE",
+                    "label": "Price"
+                },
+                {
+                    "value": "UNKNOWN",
+                    "label": "Unknown"
+                },
+                {
+                    "value": "WORK_OF_ART",
+                    "label": "Work of art"
+                }
+            ],
+            "defaultValue": [
+                "CONSUMER_GOOD",
+                "EVENT",
+                "LOCATION",
+                "ORGANIZATION",
+                "PERSON"
+            ]
+        },
+        {
             "name": "separator_advanced",
             "label": "Advanced",
             "type": "SEPARATOR"

@@ -3,10 +3,12 @@ import json
 import logging
 import pandas as pd
 
+from enum import Enum
+from typing import AnyStr, Dict, List, Union, NamedTuple
+
 from google.cloud import language
 from google.api_core.exceptions import GoogleAPICallError, RetryError
 from google.oauth2 import service_account
-from typing import AnyStr, Dict, Union, NamedTuple
 
 from plugin_io_utils import (
     API_COLUMN_NAMES_DESCRIPTION_DICT, generate_unique,
@@ -30,6 +32,21 @@ BATCH_ERROR_MESSAGE_KEY = None
 BATCH_ERROR_TYPE_KEY = None
 
 VERBOSE = False
+
+
+class EntityTypeEnum(Enum):
+    ADDRESS = "Address"
+    CONSUMER_GOOD = "Consumer good"
+    DATE = "Date"
+    EVENT = "Event"
+    LOCATION = "Location"
+    NUMBER = "Number"
+    ORGANIZATION = "Organization"
+    OTHER = "Other"
+    PERSON = "Person"
+    PRICE = "Price"
+    UNKNOWN = "Unknown"
+    WORK_OF_ART = "Work of art"
 
 # ==============================================================================
 # FUNCTION DEFINITION
@@ -63,7 +80,7 @@ def scale_sentiment_score(
     scale: AnyStr = 'ternary'
 ) -> Union[AnyStr, float]:
     """
-    Scale the score according to predefined categorical or numerical rules
+    Scale sentiment score according to categorical or numerical rules
     """
     if scale == 'binary':
         return 'negative' if score < 0 else 'positive'
@@ -99,7 +116,7 @@ def format_row_sentiment_analysis(
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
-    Format the API response row for sentiment analysis to:
+    Format Sentiment Analysis API response, row-by-row:
     - make sure response is valid JSON
     - expand results to two score and magnitude columns
     - scale the score according to predefined categorical or numerical rules
@@ -137,11 +154,7 @@ def format_df_sentiment_analysis(
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> pd.DataFrame:
     """
-    Format a pandas DataFrame containing API responses for sentiment analysis:
-    - make sure response is valid JSON
-    - expand results to two score and magnitude columns
-    - scale the score according to predefined categorical or numerical rules
-    Returns the formatted DataFrame and a dictionary of column descriptions
+    Format a DataFrame containing API responses for Sentiment Analysis
     """
     logging.info("Formatting API results...")
     df = df.apply(
@@ -160,7 +173,7 @@ def compute_column_description_sentiment_analysis(
     column_prefix: AnyStr = "sentiment_api",
 ) -> Dict:
     """
-    Compute dictionary of column descriptions for sentiment analysis API
+    Compute dictionary of column descriptions for Sentiment Analysis API
     """
     column_description_dict = {
         v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
@@ -184,11 +197,12 @@ def compute_column_description_sentiment_analysis(
 def format_row_named_entity_recognition(
     row: Dict,
     response_column: AnyStr,
+    entity_types: List,
     column_prefix: AnyStr = "entity_api",
     error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
 ) -> Dict:
     """
-    Format the API response for entity recognition to:
+    Format Named Entity Recognition API response, row-by-row:
     - make sure response is valid JSON
     - expand results to multiple JSON columns (one by entity type)
     or put all entities as a list in a single JSON column
@@ -196,9 +210,9 @@ def format_row_named_entity_recognition(
     raw_response = row[response_column]
     response = safe_json_loads(raw_response, error_handling)
     entities = response.get("entities", [])
-    available_entity_types = sorted([
-        n for n, m in language.enums.Entity.Type.__members__.items()])
-    for n in available_entity_types:
+    selected_entity_types = sorted([
+        e.name for e in entity_types])
+    for n in selected_entity_types:
         entity_type_column = generate_unique(
             "entity_type_" + n.lower(), row.keys(), column_prefix)
         row[entity_type_column] = [
@@ -207,6 +221,45 @@ def format_row_named_entity_recognition(
         if len(row[entity_type_column]) == 0:
             row[entity_type_column] = ''
     return row
+
+
+def format_df_named_entity_recognition(
+    df: pd.DataFrame,
+    api_column_names: NamedTuple,
+    entity_types: List,
+    column_prefix: AnyStr = "entity_api",
+    error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG
+) -> pd.DataFrame:
+    """
+    Format a DataFrame containing API responses for Named Entity Recognition
+    """
+    logging.info("Formatting API results...")
+    df = df.apply(
+        func=format_row_named_entity_recognition, axis=1,
+        response_column=api_column_names.response, entity_types=entity_types,
+        error_handling=error_handling, column_prefix=column_prefix)
+    df = move_api_columns_to_end(df, api_column_names)
+    logging.info("Formatting API results: Done.")
+    return df
+
+
+def compute_column_description_named_entity_recognition(
+    df: pd.DataFrame,
+    api_column_names: NamedTuple,
+    column_prefix: AnyStr = "entity_api",
+) -> Dict:
+    """
+    Compute dictionary of column descriptions for Named Entity Recognition API
+    """
+    column_description_dict = {
+        v: API_COLUMN_NAMES_DESCRIPTION_DICT[k]
+        for k, v in api_column_names._asdict().items()}
+    for n, m in EntityTypeEnum.__members__.items():
+        entity_type_column = generate_unique(
+            "entity_type_" + n.lower(), df.keys(), column_prefix)
+        column_description_dict[entity_type_column] = \
+            "List of '{}' entities recognized by the API".format(str(m.value))
+    return column_description_dict
 
 
 def format_row_text_classification(
