@@ -189,7 +189,7 @@ def compute_column_description_sentiment_analysis(
     column_description_dict[sentiment_score_scaled_column] = \
         "Scaled sentiment score according to the “Sentiment scale” parameter"
     column_description_dict[sentiment_magnitude_column] = \
-        "Magnitude score from the API indicating the strength of emotion " + \
+        "Magnitude score indicating emotion strength " + \
         "(both positive and negative) between 0 and +Inf"
     return column_description_dict
 
