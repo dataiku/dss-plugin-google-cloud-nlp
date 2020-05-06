@@ -128,6 +128,7 @@
             "name": "entity_types",
             "label": "Entity types",
             "type": "MULTISELECT",
+            "visibilityCondition": "model.expert == true",
             "description": "List of entity types to extract",
             "mandatory": true,
             "selectChoices": [
