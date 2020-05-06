@@ -125,25 +125,6 @@
             "defaultValue": false
         },
         {
-            "name": "output_format",
-            "label": "Format",
-            "type": "SELECT",
-            "mandatory": true,
-            "visibilityCondition": "model.expert == true",
-            "selectChoices": [
-                {
-                    "value": "MULTIPLE_COLUMNS",
-                    "label": "Multiple columns by entity type"
-                },
-                {
-                    "value": "SINGLE_COLUMN",
-                    "label": "Single JSON column"
-                }
-            ],
-            "defaultValue": "MULTIPLE_COLUMNS",
-            "description": "Multiple columns in human-readable format or single column in JSON format"
-        },
-        {
             "name": "error_handling",
             "label": "Error handling",
             "type": "SELECT",

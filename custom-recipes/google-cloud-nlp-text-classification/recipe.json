@@ -82,25 +82,6 @@
             "defaultValue": false
         },
         {
-            "name": "output_format",
-            "label": "Format",
-            "type": "SELECT",
-            "mandatory": true,
-            "visibilityCondition": "model.expert == true",
-            "selectChoices": [
-                {
-                    "value": "SINGLE_COLUMN",
-                    "label": "Single JSON column"
-                },
-                {
-                    "value": "MULTIPLE_COLUMNS",
-                    "label": "Multiple columns by category"
-                }
-            ],
-            "defaultValue": "MULTIPLE_COLUMNS",
-            "description": "Multiple columns in human-readable format or single column in JSON format"
-        },
-        {
             "name": "num_categories",
             "label": "Number of categories",
             "description": "Number of categories to extract from the API response",
@@ -109,7 +90,7 @@
             "defaultValue": 3,
             "minI": 1,
             "maxI": 100,
-            "visibilityCondition": "model.expert == true && model.output_format == 'MULTIPLE_COLUMNS'"
+            "visibilityCondition": "model.expert == true"
         },
         {
             "name": "error_handling",

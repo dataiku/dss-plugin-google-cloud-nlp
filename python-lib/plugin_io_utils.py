@@ -4,36 +4,31 @@ import dataiku
 
 from enum import Enum
 from typing import AnyStr, List, NamedTuple, Dict
-from collections import namedtuple
+from collections import OrderedDict, namedtuple
 
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
 
-API_COLUMN_NAMES = ["response", "error_message", "error_type", "error_raw"]
+API_COLUMN_NAMES_DESCRIPTION_DICT = OrderedDict([
+    ("response", "Raw response from the API in JSON format"),
+    ("error_message", "Error message from the API"),
+    ("error_type", "Error type (module and class name)"),
+    ("error_raw", "Raw error from the API")])
 COLUMN_PREFIX = "api"
-COLUMN_DESCRIPTION_DICT = {
-    "response": "Raw response from the API in JSON format",
-    "error_message": "Error message from the API",
-    "error_type": "Error type (module and class name)",
-    "error_raw": "Raw error from the API"}
 
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION
 # ==============================================================================
 
-ApiColumnNameTuple = namedtuple("ApiColumnNameTuple", API_COLUMN_NAMES)
+ApiColumnNameTuple = namedtuple(
+    "ApiColumnNameTuple", API_COLUMN_NAMES_DESCRIPTION_DICT.keys())
 
 
 class ErrorHandlingEnum(Enum):
     LOG = "Log"
     FAIL = "Fail"
-
-
-class OutputFormatEnum(Enum):
-    SINGLE_COLUMN = "Single JSON column"
-    MULTIPLE_COLUMNS = "Multiple columns"
 
 
 def generate_unique(

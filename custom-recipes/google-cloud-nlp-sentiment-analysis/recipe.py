@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 from typing import Dict, AnyStr
 from ratelimit import limits, RateLimitException
 from retry import retry
@@ -9,14 +8,14 @@ from google.protobuf.json_format import MessageToJson
 import dataiku
 
 from plugin_io_utils import (
-    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, build_unique_column_names,
-    generate_unique, validate_column_input, set_column_description)
+    ErrorHandlingEnum, build_unique_column_names,
+    validate_column_input, set_column_description)
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
 from api_formatting import (
-    DOCUMENT_TYPE, ENCODING_TYPE, APPLY_AXIS,
-    get_client, format_sentiment_analysis, move_api_columns_to_end)
+    DOCUMENT_TYPE, ENCODING_TYPE, get_client, format_df_sentiment_analysis,
+    compute_column_description_sentiment_analysis)
 
 
 # ==============================================================================
@@ -48,12 +47,7 @@ input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
 column_prefix = "sentiment_api"
 api_column_names = build_unique_column_names(input_df, column_prefix)
-sentiment_score_column = generate_unique(
-    "score", input_columns_names, column_prefix)
-sentiment_score_scaled_column = generate_unique(
-    "score_scaled", input_columns_names, column_prefix)
-sentiment_magnitude_column = generate_unique(
-    "magnitude", input_columns_names, column_prefix)
+
 
 # ==============================================================================
 # RUN
@@ -82,23 +76,13 @@ output_df = api_parallelizer(
     column_prefix=column_prefix, text_column=text_column,
     text_language=text_language)
 
-logging.info("Formatting API results...")
-output_df = output_df.apply(
-    func=format_sentiment_analysis, axis=APPLY_AXIS,
-    response_column=api_column_names.response, sentiment_scale=sentiment_scale,
-    error_handling=error_handling, column_prefix=column_prefix)
-output_df = move_api_columns_to_end(output_df, api_column_names)
-logging.info("Formatting API results: Done.")
+output_df = format_df_sentiment_analysis(
+    df=output_df, api_column_names=api_column_names,
+    sentiment_scale=sentiment_scale, column_prefix=column_prefix,
+    error_handling=error_handling)
+column_description_dict = compute_column_description_sentiment_analysis(
+    df=input_df, api_column_names=api_column_names,
+    column_prefix=column_prefix)
 
 output_dataset.write_with_schema(output_df)
-column_description_dict = {
-    v: COLUMN_DESCRIPTION_DICT[k]
-    for k, v in api_column_names._asdict().items()}
-column_description_dict[sentiment_score_column] = \
-    "Sentiment score from the API in numerical format between -1 and 1"
-column_description_dict[sentiment_score_scaled_column] = \
-    "Scaled sentiment score according to the “Sentiment scale” parameter"
-column_description_dict[sentiment_magnitude_column] = \
-    "Magnitude score from the API indicating the strength of emotion " + \
-    "(both positive and negative) between 0 and +Inf"
 set_column_description(output_dataset, column_description_dict)

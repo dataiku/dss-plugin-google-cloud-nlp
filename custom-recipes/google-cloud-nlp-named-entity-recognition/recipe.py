@@ -9,8 +9,8 @@ from google.protobuf.json_format import MessageToJson
 import dataiku
 
 from plugin_io_utils import (
-    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, OutputFormatEnum,
-    build_unique_column_names, validate_column_input, set_column_description)
+    COLUMN_DESCRIPTION_DICT, ErrorHandlingEnum, build_unique_column_names, 
+    validate_column_input, set_column_description)
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
@@ -32,7 +32,6 @@ api_quota_period = api_configuration_preset.get("api_quota_period")
 parallel_workers = api_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", '').replace("auto", '')
-output_format = OutputFormatEnum[get_recipe_config().get('output_format')]
 entity_sentiment = get_recipe_config().get('entity_sentiment', False)
 error_handling = ErrorHandlingEnum[get_recipe_config().get('error_handling')]
 
@@ -47,7 +46,7 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 validate_column_input(text_column, input_columns_names)
 input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
-column_prefix = "ner_api"
+column_prefix = "entity_api"
 api_column_names = build_unique_column_names(input_df, column_prefix)
 
 
@@ -86,8 +85,8 @@ output_df = api_parallelizer(
 logging.info("Formatting API results...")
 output_df = output_df.apply(
     func=format_named_entity_recognition, axis=APPLY_AXIS,
-    response_column=api_column_names.response, output_format=output_format,
-    error_handling=error_handling, column_prefix=column_prefix)
+    response_column=api_column_names.response, error_handling=error_handling, 
+    column_prefix=column_prefix)
 output_df = move_api_columns_to_end(output_df, api_column_names)
 logging.info("Formatting API results: Done.")
 
