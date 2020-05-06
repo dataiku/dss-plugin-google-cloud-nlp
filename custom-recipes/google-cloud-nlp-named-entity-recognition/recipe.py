@@ -14,7 +14,7 @@ from plugin_io_utils import (
 from api_parallelizer import api_parallelizer
 from dataiku.customrecipe import (
     get_recipe_config, get_input_names_for_role, get_output_names_for_role)
-from cloud_api import (
+from api_formatting import (
     DOCUMENT_TYPE, ENCODING_TYPE, APPLY_AXIS,
     get_client, format_named_entity_recognition, move_api_columns_to_end)
 

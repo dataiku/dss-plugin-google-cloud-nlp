@@ -13,7 +13,7 @@ from tqdm.auto import tqdm as tqdm_auto
 
 from plugin_io_utils import (
     COLUMN_PREFIX, ErrorHandlingEnum, build_unique_column_names)
-from cloud_api import (
+from api_formatting import (
     API_EXCEPTIONS, API_SUPPORT_BATCH, BATCH_RESULT_KEY, BATCH_ERROR_KEY,
     BATCH_INDEX_KEY, BATCH_ERROR_MESSAGE_KEY, BATCH_ERROR_TYPE_KEY, VERBOSE)
 

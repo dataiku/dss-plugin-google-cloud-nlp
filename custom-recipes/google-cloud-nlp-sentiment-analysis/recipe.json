@@ -1,6 +1,7 @@
 {
     "meta": {
         "label": "Sentiment Analysis",
+        "displayOrderRank": 1,
         "description": "Analyze the sentiment polarity of a text",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
@@ -45,6 +46,7 @@
         {
             "name": "language",
             "label": "Language",
+            "description": "List of supported languages",
             "type": "SELECT",
             "mandatory": true,
             "selectChoices": [
@@ -93,7 +95,7 @@
                     "label": "Spanish"
                 }
             ],
-            "defaultValue": "auto"
+            "defaultValue": "en"
         },
         {
             "name": "separator_configuration",

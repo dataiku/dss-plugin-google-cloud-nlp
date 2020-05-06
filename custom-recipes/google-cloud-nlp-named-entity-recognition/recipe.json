@@ -1,6 +1,7 @@
 {
     "meta": {
         "label": "Named Entity Recognition",
+        "displayOrderRank": 2,
         "description": "Recognize “real-world objects” (people, places, products, companies, etc.) in a text",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
@@ -46,6 +47,7 @@
             "name": "language",
             "label": "Language",
             "type": "SELECT",
+            "description": "List of supported languages",
             "mandatory": true,
             "selectChoices": [
                 {
@@ -97,7 +99,7 @@
                     "label": "Spanish"
                 }
             ],
-            "defaultValue": "auto"
+            "defaultValue": "en"
         },
         {
             "name": "separator_configuration",
