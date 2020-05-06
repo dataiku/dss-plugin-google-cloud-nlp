@@ -11,9 +11,6 @@ endif
 ifndef DKU_PLUGIN_DEVELOPER_REPO_URL
 $(error the DKU_PLUGIN_DEVELOPER_REPO_URL environment variable is not set)
 endif
-ifeq (`echo "${DKU_PLUGIN_DEVELOPER_REPO_URL: -1}"`, "/")
-$(error the DKU_PLUGIN_DEVELOPER_REPO_URL environment variable must not end with '/')
-endif
 
 # evaluate additional variable
 plugin_id=`cat plugin.json | python -c "import sys, json; print(str(json.load(sys.stdin)['id']).replace('/',''))"`
