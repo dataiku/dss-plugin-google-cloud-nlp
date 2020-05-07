@@ -1,9 +1,9 @@
 {
     "meta": {
-        "label": "Text classification",
-        "description": "Classify text into categories (example: ”/Arts & Entertainment/Music & Audio/Music Reference”).",
-        "icon": "icon-sitemap",
-        "iconColor": "green"
+        "label": "Text Classification",
+        "displayOrderRank": 3,
+        "description": "Classify text into 700+ predefined content categories",
+        "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
@@ -29,43 +29,87 @@
     ],
     "params": [
         {
-            "name": "connection_info",
-            "label": "GCP Connection",
-            "type": "PRESET",
-            "parameterSetId" : "connection-info",
-            "mandatory" : true
+            "name": "separator_input",
+            "label": "Input Parameters",
+            "type": "SEPARATOR"
         },
         {
             "name": "text_column",
-            "label": "Input text column",
-            "description": "WARNING: each record MUST have at least 20 tokens.",
+            "label": "Text column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
-            "mandatory": true
+            "mandatory": true,
+            "description": "Requires at least 20 word tokens",
+            "allowedColumnTypes": [
+                "string"
+            ]
         },
         {
             "name": "language",
             "label": "Language",
-            "type": "COLUMN",
-            "columnRole": "input_dataset",
-            "description": "in ISO 639-1 format (empty = auto-detect)",
-            "mandatory": false
+            "type": "SELECT",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "en",
+                    "label": "English"
+                }
+            ],
+            "defaultValue": "en",
+            "description": "Only supported language"
         },
         {
-            "name": "remove_prefix",
-            "label": "Remove prefix",
+            "name": "separator_configuration",
+            "label": "Configuration",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "api_configuration_preset",
+            "label": "API configuration preset",
+            "type": "PRESET",
+            "parameterSetId": "api-configuration",
+            "mandatory": true
+        },
+        {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
             "type": "BOOLEAN",
-            "defaultValue": true
+            "defaultValue": false
         },
         {
-            "name": "output_multiple_categories",
-            "label": "Output several categories",
-            "type": "BOOLEAN"
+            "name": "num_categories",
+            "label": "Number of categories",
+            "description": "Number of categories to extract from the API response",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 1,
+            "minI": 1,
+            "maxI": 100,
+            "visibilityCondition": "model.expert == true"
         },
         {
-            "name": "should_output_raw_results",
-            "label": "Output Raw Response?",
-            "type": "BOOLEAN"
+            "name": "error_handling",
+            "label": "Error handling",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "LOG",
+                    "label": "Log"
+                },
+                {
+                    "value": "FAIL",
+                    "label": "Fail"
+                }
+            ],
+            "description": "Log API errors to the output or fail with an exception on any API error",
+            "defaultValue": "LOG",
+            "mandatory": true,
+            "visibilityCondition": "model.expert == true"
         }
     ],
     "resourceKeys": []

@@ -18,7 +18,13 @@ from plugin_io_utils import (
     set_column_description,
 )
 from api_parallelizer import api_parallelizer
-from api_formatting import DOCUMENT_TYPE, get_client, TextClassificationAPIFormatter
+from api_formatting import (
+    DOCUMENT_TYPE,
+    ENCODING_TYPE,
+    EntityTypeEnum,
+    get_client,
+    NamedEntityRecognitionAPIFormatter,
+)
 
 
 # ==============================================================================
@@ -34,8 +40,9 @@ api_quota_period = api_configuration_preset.get("api_quota_period")
 parallel_workers = api_configuration_preset.get("parallel_workers")
 text_column = get_recipe_config().get("text_column")
 text_language = get_recipe_config().get("language", "").replace("auto", "")
-num_categories = int(get_recipe_config().get("num_categories"))
+entity_sentiment = get_recipe_config().get("entity_sentiment", False)
 error_handling = ErrorHandlingEnum[get_recipe_config().get("error_handling")]
+entity_types = [EntityTypeEnum[i] for i in get_recipe_config().get("entity_types", [])]
 
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
 input_dataset = dataiku.Dataset(input_dataset_name)
@@ -48,7 +55,7 @@ output_dataset = dataiku.Dataset(output_dataset_name)
 validate_column_input(text_column, input_columns_names)
 input_df = input_dataset.get_dataframe()
 client = get_client(service_account_key)
-column_prefix = "text_classif_api"
+column_prefix = "entity_api"
 
 
 # ==============================================================================
@@ -58,8 +65,8 @@ column_prefix = "text_classif_api"
 
 @retry((RateLimitException, OSError), delay=api_quota_period, tries=5)
 @limits(calls=api_quota_rate_limit, period=api_quota_period)
-def call_api_text_classification(
-    row: Dict, text_column: AnyStr, text_language: AnyStr
+def call_api_named_entity_recognition(
+    row: Dict, text_column: AnyStr, text_language: AnyStr, entity_sentiment: bool
 ) -> AnyStr:
     text = row[text_column]
     if not isinstance(text, str) or str(text).strip() == "":
@@ -68,24 +75,32 @@ def call_api_text_classification(
         document = language.types.Document(
             content=text, language=text_language, type=DOCUMENT_TYPE
         )
-        response = client.classify_text(document=document)
+        if entity_sentiment:
+            response = client.analyze_entity_sentiment(
+                document=document, encoding_type=ENCODING_TYPE
+            )
+        else:
+            response = client.analyze_entities(
+                document=document, encoding_type=ENCODING_TYPE
+            )
         return MessageToJson(response)
 
 
 df = api_parallelizer(
     input_df=input_df,
-    api_call_function=call_api_text_classification,
+    api_call_function=call_api_named_entity_recognition,
     parallel_workers=parallel_workers,
     error_handling=error_handling,
     column_prefix=column_prefix,
     text_column=text_column,
     text_language=text_language,
+    entity_sentiment=entity_sentiment,
 )
 
-api_formatter = TextClassificationAPIFormatter(
+api_formatter = NamedEntityRecognitionAPIFormatter(
     input_df=input_df,
     column_prefix=column_prefix,
-    num_categories=num_categories,
+    entity_types=entity_types,
     error_handling=error_handling,
 )
 output_df = api_formatter.format_df(df)

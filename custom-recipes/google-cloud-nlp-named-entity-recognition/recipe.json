@@ -1,8 +1,8 @@
 {
     "meta": {
-        "label": "Sentiment Analysis",
-        "displayOrderRank": 1,
-        "description": "Analyze the sentiment polarity of a text",
+        "label": "Named Entity Recognition",
+        "displayOrderRank": 2,
+        "description": "Recognize “real-world objects” (people, places, products, companies, etc.) in a text",
         "icon": "icon-gcp-natural-language-api icon-cloud"
     },
     "kind": "PYTHON",
@@ -46,8 +46,8 @@
         {
             "name": "language",
             "label": "Language",
-            "description": "List of supported languages",
             "type": "SELECT",
+            "description": "List of supported languages",
             "mandatory": true,
             "selectChoices": [
                 {
@@ -91,6 +91,10 @@
                     "label": "Portuguese"
                 },
                 {
+                    "value": "ru",
+                    "label": "Russian"
+                },
+                {
                     "value": "es",
                     "label": "Spanish"
                 }
@@ -121,41 +125,79 @@
             "defaultValue": false
         },
         {
-            "name": "sentiment_scale",
-            "label": "Sentiment scale",
-            "type": "SELECT",
-            "mandatory": true,
+            "name": "entity_types",
+            "label": "Entity types",
+            "type": "MULTISELECT",
             "visibilityCondition": "model.expert == true",
-            "description": "Apply categorical or numerical scaling to the score returned by the API",
+            "description": "List of entity types to extract",
+            "mandatory": true,
             "selectChoices": [
                 {
-                    "value": "binary",
-                    "label": "Negative / Positive"
+                    "value": "ADDRESS",
+                    "label": "Address"
                 },
                 {
-                    "value": "ternary",
-                    "label": "Negative / Neutral / Positive"
+                    "value": "CONSUMER_GOOD",
+                    "label": "Consumer good"
                 },
                 {
-                    "value": "quinary",
-                    "label": "Highly negative / Negative / Neutral / Positive / Highly positive"
+                    "value": "DATE",
+                    "label": "Date"
                 },
                 {
-                    "value": "rescale_zero_to_one",
-                    "label": "Number between 0 and 1"
+                    "value": "EVENT",
+                    "label": "Event"
                 },
                 {
-                    "value": "rescale_minusone_to_one",
-                    "label": "Number between -1 and 1"
+                    "value": "LOCATION",
+                    "label": "Location"
+                },
+                {
+                    "value": "NUMBER",
+                    "label": "Number"
+                },
+                {
+                    "value": "ORGANIZATION",
+                    "label": "Organization"
+                },
+                {
+                    "value": "OTHER",
+                    "label": "Other"
+                },
+                {
+                    "value": "PERSON",
+                    "label": "Person"
+                },
+                {
+                    "value": "PHONE_NUMBER",
+                    "label": "Phone number"
+                },
+                {
+                    "value": "PRICE",
+                    "label": "Price"
+                },
+                {
+                    "value": "UNKNOWN",
+                    "label": "Unknown"
+                },
+                {
+                    "value": "WORK_OF_ART",
+                    "label": "Work of art"
                 }
             ],
-            "defaultValue": "ternary"
+            "defaultValue": [
+                "CONSUMER_GOOD",
+                "EVENT",
+                "LOCATION",
+                "ORGANIZATION",
+                "PERSON"
+            ]
         },
         {
             "name": "error_handling",
             "label": "Error handling",
-            "visibilityCondition": "model.expert == true",
             "type": "SELECT",
+            "visibilityCondition": "model.expert == true",
             "selectChoices": [
                 {
                     "value": "LOG",
@@ -169,6 +211,14 @@
             "description": "Log API errors to the output or fail with an exception on any API error",
             "defaultValue": "LOG",
             "mandatory": true
+        },
+        {
+            "name": "entity_sentiment",
+            "label": "Entity sentiment",
+            "description": "Compute at additional cost",
+            "type": "BOOLEAN",
+            "defaultValue": false,
+            "visibilityCondition": "model.expert == true"
         }
     ],
     "resourceKeys": []
