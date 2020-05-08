@@ -98,4 +98,8 @@ api_formatter = SentimentAnalysisAPIFormatter(
 output_df = api_formatter.format_df(df)
 
 output_dataset.write_with_schema(output_df)
-set_column_description(output_dataset, api_formatter.column_description_dict)
+set_column_description(
+    input_dataset=input_dataset,
+    output_dataset=output_dataset,
+    column_description_dict=api_formatter.column_description_dict,
+)

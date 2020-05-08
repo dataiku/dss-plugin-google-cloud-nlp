@@ -122,10 +122,26 @@ def move_api_columns_to_end(
 
 
 def set_column_description(
-    dataset: dataiku.Dataset, column_description_dict: Dict
+    input_dataset: dataiku.Dataset,
+    output_dataset: dataiku.Dataset,
+    column_description_dict: Dict,
 ) -> None:
-    dataset_schema = dataset.read_schema()
-    for col_info in dataset_schema:
-        col_name = col_info.get("name")
-        col_info["comment"] = column_description_dict.get(col_name)
-    dataset.write_schema(dataset_schema)
+    """
+    Set column descriptions of the output dataset based on a dictionary of column descriptions
+    and retains the column descriptions from the input dataset if the column name matches
+    """
+    input_dataset_schema = input_dataset.read_schema()
+    output_dataset_schema = output_dataset.read_schema()
+    input_columns_names = [col["name"] for col in input_dataset_schema]
+    for output_col_info in output_dataset_schema:
+        output_col_name = output_col_info.get("name", "")
+        output_col_info["comment"] = column_description_dict.get(output_col_name)
+        if output_col_name in input_columns_names:
+            matched_comment = [
+                input_col_info.get("comment", "")
+                for input_col_info in input_dataset_schema
+                if input_col_info.get("name") == output_col_name
+            ]
+            if len(matched_comment) != 0:
+                output_col_info["comment"] = matched_comment[0]
+    output_dataset.write_schema(output_dataset_schema)

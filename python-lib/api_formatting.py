@@ -199,12 +199,14 @@ class NamedEntityRecognitionAPIFormatter:
         self,
         input_df: pd.DataFrame,
         entity_types: List,
+        minimum_score: float,
         column_prefix: AnyStr = "entity_api",
         error_handling: ErrorHandlingEnum = ErrorHandlingEnum.LOG,
     ):
         self.input_df = input_df
         self.column_prefix = column_prefix
         self.entity_types = entity_types
+        self.minimum_score = float(minimum_score)
         self.error_handling = error_handling
         self.api_column_names = build_unique_column_names(input_df, column_prefix)
         self.column_description_dict = self._compute_column_description()
@@ -233,7 +235,10 @@ class NamedEntityRecognitionAPIFormatter:
                 "entity_type_" + n.lower(), row.keys(), self.column_prefix
             )
             row[entity_type_column] = [
-                e.get("name") for e in entities if e.get("type", "") == n
+                e.get("name")
+                for e in entities
+                if e.get("type", "") == n
+                and float(e.get("salience", 0)) >= self.minimum_score
             ]
             if len(row[entity_type_column]) == 0:
                 row[entity_type_column] = ""
