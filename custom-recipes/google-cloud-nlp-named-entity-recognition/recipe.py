@@ -43,7 +43,9 @@ text_language = get_recipe_config().get("language", "").replace("auto", "")
 entity_sentiment = get_recipe_config().get("entity_sentiment", False)
 error_handling = ErrorHandlingEnum[get_recipe_config().get("error_handling")]
 entity_types = [EntityTypeEnum[i] for i in get_recipe_config().get("entity_types", [])]
-
+minimum_score = float(get_recipe_config().get("minimum_score", 0))
+if minimum_score < 0 or minimum_score > 1:
+    raise ValueError("Minimum salience score must be between 0 and 1")
 input_dataset_name = get_input_names_for_role("input_dataset")[0]
 input_dataset = dataiku.Dataset(input_dataset_name)
 input_schema = input_dataset.read_schema()
@@ -101,9 +103,14 @@ api_formatter = NamedEntityRecognitionAPIFormatter(
     input_df=input_df,
     column_prefix=column_prefix,
     entity_types=entity_types,
+    minimum_score=minimum_score,
     error_handling=error_handling,
 )
 output_df = api_formatter.format_df(df)
 
 output_dataset.write_with_schema(output_df)
-set_column_description(output_dataset, api_formatter.column_description_dict)
+set_column_description(
+    input_dataset=input_dataset,
+    output_dataset=output_dataset,
+    column_description_dict=api_formatter.column_description_dict,
+)
