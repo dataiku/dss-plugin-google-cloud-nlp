@@ -12,13 +12,18 @@ from dataiku.customrecipe import (
     get_output_names_for_role,
 )
 
+from google_nlp_api_client import (
+    DOCUMENT_TYPE,
+    API_EXCEPTIONS,
+    get_client,
+)
 from plugin_io_utils import (
     ErrorHandlingEnum,
     validate_column_input,
     set_column_description,
 )
 from api_parallelizer import api_parallelizer
-from api_formatting import DOCUMENT_TYPE, get_client, TextClassificationAPIFormatter
+from google_nlp_api_formatting import TextClassificationAPIFormatter
 
 
 # ==============================================================================
@@ -75,9 +80,10 @@ def call_api_text_classification(
 df = api_parallelizer(
     input_df=input_df,
     api_call_function=call_api_text_classification,
+    api_exceptions=API_EXCEPTIONS,
+    column_prefix=column_prefix,
     parallel_workers=parallel_workers,
     error_handling=error_handling,
-    column_prefix=column_prefix,
     text_column=text_column,
     text_language=text_language,
 )
