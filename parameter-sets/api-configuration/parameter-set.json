@@ -12,7 +12,7 @@
             "name": "separator_authentification",
             "label": "Authentification",
             "type": "SEPARATOR",
-            "description": "Please refer to the Google Cloud documentation: https://cloud.google.com/iam/docs/creating-managing-service-account-keys"
+            "description": "Please refer to the Google Cloud documentation: https://cloud.google.com/natural-language/docs/quickstart#before_you_begin"
         },
         {
             "name": "gcp_service_account_key",
