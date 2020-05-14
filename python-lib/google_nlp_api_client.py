@@ -26,7 +26,7 @@ def get_client(gcp_service_account_key=None):
     """
     Get a Google Natural Language API client from the service account key.
     """
-    if gcp_service_account_key is None:
+    if gcp_service_account_key is None or gcp_service_account_key == "":
         return language.LanguageServiceClient()
     try:
         credentials = json.loads(gcp_service_account_key)
