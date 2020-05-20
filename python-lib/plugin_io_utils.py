@@ -38,8 +38,7 @@ class ErrorHandlingEnum(Enum):
 
 def generate_unique(name: AnyStr, existing_names: List, prefix: AnyStr = COLUMN_PREFIX) -> AnyStr:
     """
-    Generate a unique name among existing ones by suffixing a number.
-    Can also add an optional prefix.
+    Generate a unique name among existing ones by suffixing a number. Can also add an optional prefix.
     """
     if prefix is not None:
         new_name = prefix + "_" + name
@@ -55,8 +54,7 @@ def generate_unique(name: AnyStr, existing_names: List, prefix: AnyStr = COLUMN_
 def build_unique_column_names(existing_names: List[AnyStr], column_prefix: AnyStr = COLUMN_PREFIX) -> NamedTuple:
     """
     Helper function to the "api_parallelizer" main function.
-    Initializes a named tuple of column names from ApiColumnNameTuple,
-    adding a prefix and a number suffix to make them unique.
+    Initializes a named tuple of column names from ApiColumnNameTuple, ensure columns are unique.
     """
     api_column_names = ApiColumnNameTuple(
         *[generate_unique(k, existing_names, column_prefix) for k in ApiColumnNameTuple._fields]
