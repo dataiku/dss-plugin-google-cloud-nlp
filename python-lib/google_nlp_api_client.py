@@ -34,12 +34,6 @@ def get_client(gcp_service_account_key=None):
         logging.error(e)
         raise ValueError("GCP service account key is not valid JSON.")
     credentials = service_account.Credentials.from_service_account_info(credentials)
-    if hasattr(credentials, "service_account_email"):
-        logging.info(
-            "GCP service account loaded with email: %s"
-            % credentials.service_account_email
-        )
-    else:
-        logging.info("Credentials loaded")
+    logging.info("Credentials loaded")
     client = language.LanguageServiceClient(credentials=credentials)
     return client
