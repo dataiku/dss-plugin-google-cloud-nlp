@@ -4,6 +4,6 @@ This Dataiku DSS plugin provides several recipes to call [Google Cloud Natural L
 
 Documentation: https://www.dataiku.com/product/plugins/google-cloud-nlp/
 
-### Licence
+### License
 
 This plugin is distributed under the Apache License version 2.0
