@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Module with utility functions to call the Google NLP API"""
+
 import logging
 import json
 
@@ -30,9 +32,9 @@ def get_client(gcp_service_account_key=None):
         return language.LanguageServiceClient()
     try:
         credentials = json.loads(gcp_service_account_key)
-    except Exception as e:
+    except (ValueError, TypeError) as e:
         logging.error(e)
-        raise ValueError("GCP service account key is not valid JSON.")
+        raise ValueError("GCP service account key is not valid JSON")
     credentials = service_account.Credentials.from_service_account_info(credentials)
     logging.info("Credentials loaded")
     client = language.LanguageServiceClient(credentials=credentials)

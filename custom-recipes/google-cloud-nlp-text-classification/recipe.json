@@ -71,6 +71,16 @@
             "mandatory": true
         },
         {
+            "name": "num_categories",
+            "label": "Number of categories",
+            "description": "Number of categories to extract from the API response",
+            "type": "INT",
+            "mandatory": true,
+            "defaultValue": 3,
+            "minI": 1,
+            "maxI": 100
+        },
+        {
             "name": "separator_advanced",
             "label": "Advanced",
             "type": "SEPARATOR"
@@ -80,17 +90,6 @@
             "label": "Expert mode",
             "type": "BOOLEAN",
             "defaultValue": false
-        },
-        {
-            "name": "num_categories",
-            "label": "Number of categories",
-            "description": "Number of categories to extract from the API response",
-            "type": "INT",
-            "mandatory": true,
-            "defaultValue": 1,
-            "minI": 1,
-            "maxI": 100,
-            "visibilityCondition": "model.expert == true"
         },
         {
             "name": "error_handling",
@@ -109,7 +108,7 @@
             "description": "Log API errors to the output or fail with an exception on any API error",
             "defaultValue": "LOG",
             "mandatory": true,
-            "visibilityCondition": "model.expert == true"
+            "visibilityCondition": "model.expert"
         }
     ],
     "resourceKeys": []

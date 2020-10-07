@@ -9,7 +9,8 @@ import dataiku
 from dataiku.customrecipe import get_recipe_config, get_input_names_for_role, get_output_names_for_role
 
 from google_nlp_api_client import DOCUMENT_TYPE, ENCODING_TYPE, API_EXCEPTIONS, get_client
-from plugin_io_utils import ErrorHandlingEnum, validate_column_input, set_column_description
+from plugin_io_utils import ErrorHandlingEnum, validate_column_input
+from dku_io_utils import set_column_description
 from api_parallelizer import api_parallelizer
 from google_nlp_api_formatting import SentimentAnalysisAPIFormatter
 

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Module with classes to format results from the Google NLP API"""
+
 import logging
 import pandas as pd
 
