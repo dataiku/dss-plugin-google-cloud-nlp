@@ -55,12 +55,20 @@
                     "label": "Auto-detect"
                 },
                 {
+                    "value": "ar",
+                    "label": "Arabic"
+                },
+                {
                     "value": "zh",
                     "label": "Chinese (Simplified)"
                 },
                 {
                     "value": "zh-Hant",
                     "label": "Chinese (Traditional)"
+                },
+                {
+                    "value": "nl",
+                    "label": "Dutch"
                 },
                 {
                     "value": "en",
@@ -73,6 +81,10 @@
                 {
                     "value": "de",
                     "label": "German"
+                },
+                {
+                    "value": "id",
+                    "label": "Indonesian"
                 },
                 {
                     "value": "it",
@@ -93,6 +105,18 @@
                 {
                     "value": "es",
                     "label": "Spanish"
+                },
+                {
+                    "value": "th",
+                    "label": "Thai"
+                },
+                {
+                    "value": "tr",
+                    "label": "Turkish"
+                },
+                {
+                    "value": "vi",
+                    "label": "Vietnamese"
                 }
             ],
             "defaultValue": "en"
@@ -110,23 +134,10 @@
             "mandatory": true
         },
         {
-            "name": "separator_advanced",
-            "label": "Advanced",
-            "type": "SEPARATOR"
-        },
-        {
-            "name": "expert",
-            "label": "Expert mode",
-            "type": "BOOLEAN",
-            "defaultValue": false
-        },
-        {
             "name": "sentiment_scale",
             "label": "Sentiment scale",
             "type": "SELECT",
             "mandatory": true,
-            "visibilityCondition": "model.expert == true",
-            "description": "Apply categorical or numerical scaling to the score returned by the API",
             "selectChoices": [
                 {
                     "value": "binary",
@@ -152,9 +163,20 @@
             "defaultValue": "ternary"
         },
         {
+            "name": "separator_advanced",
+            "label": "Advanced",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "expert",
+            "label": "Expert mode",
+            "type": "BOOLEAN",
+            "defaultValue": false
+        },
+        {
             "name": "error_handling",
             "label": "Error handling",
-            "visibilityCondition": "model.expert == true",
+            "visibilityCondition": "model.expert",
             "type": "SELECT",
             "selectChoices": [
                 {
