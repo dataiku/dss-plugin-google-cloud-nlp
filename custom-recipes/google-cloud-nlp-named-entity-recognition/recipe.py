@@ -67,7 +67,7 @@ def call_api_named_entity_recognition(
             response = client.analyze_entity_sentiment(document=document, encoding_type=ENCODING_TYPE)
         else:
             response = client.analyze_entities(document=document, encoding_type=ENCODING_TYPE)
-        return MessageToJson(response)
+        return MessageToJson(response, including_default_value_fields=True)
 
 
 df = api_parallelizer(
