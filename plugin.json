@@ -1,6 +1,6 @@
 {
     "id": "google-cloud-nlp",
-    "version": "1.0.2",
+    "version": "1.2.0",
     "meta": {
         "label": "Google Cloud NLP",
         "category": "Natural Language Processing",
