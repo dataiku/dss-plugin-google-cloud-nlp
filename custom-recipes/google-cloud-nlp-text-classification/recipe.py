@@ -59,7 +59,7 @@ def call_api_text_classification(row: Dict, text_column: AnyStr, text_language: 
     else:
         document = language.types.Document(content=text, language=text_language, type=DOCUMENT_TYPE)
         response = client.classify_text(document=document)
-        return MessageToJson(response)
+        return MessageToJson(response, including_default_value_fields=True)
 
 
 df = api_parallelizer(
