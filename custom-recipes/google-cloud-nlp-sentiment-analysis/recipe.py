@@ -59,7 +59,7 @@ def call_api_sentiment_analysis(row: Dict, text_column: AnyStr, text_language: A
     else:
         document = language.types.Document(content=text, language=text_language, type=DOCUMENT_TYPE)
         response = client.analyze_sentiment(document=document, encoding_type=ENCODING_TYPE)
-        return MessageToJson(response)
+        return MessageToJson(response, including_default_value_fields=True)
 
 
 df = api_parallelizer(
