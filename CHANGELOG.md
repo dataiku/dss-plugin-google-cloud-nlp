@@ -1,5 +1,9 @@
 # Changelog
 
+## [Version 1.2.2](https://github.com/dataiku/dss-plugin-google-cloud-nlp/releases/tag/v1.2.2) - Documentation update - 2026-10
+
+- Update documentation links to the DSS reference documentation.
+
 ## [Version 1.2.1](https://github.com/dataiku/dss-plugin-google-cloud-nlp/releases/tag/v1.2.1) - Support release - 2023-04
 
 - Added support for Python 3.8-3.11

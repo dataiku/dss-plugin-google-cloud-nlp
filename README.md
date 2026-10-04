@@ -4,7 +4,7 @@
 
 This Dataiku DSS plugin provides several recipes to call the [Google Cloud Natural Language APIs](https://cloud.google.com/natural-language/).
 
-Documentation: https://www.dataiku.com/product/plugins/google-cloud-nlp/
+Documentation: https://doc.dataiku.com/dss/latest/nlp/google-cloud-nlp.html
 
 ### License
 

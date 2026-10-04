@@ -1,6 +1,6 @@
 {
     "id": "google-cloud-nlp",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "meta": {
         "label": "Google Cloud NLP",
         "category": "Natural Language Processing",
@@ -8,7 +8,7 @@
         "author": "Dataiku (Alex COMBESSIE, Joachim ZENTICI)",
         "icon": "icon-gcp-natural-language-api icon-cloud",
         "licenseInfo": "Apache Software License",
-        "url": "https://www.dataiku.com/product/plugins/google-cloud-nlp/",
+        "url": "https://doc.dataiku.com/dss/latest/nlp/google-cloud-nlp.html",
         "tags": [
             "Google",
             "Cloud",
